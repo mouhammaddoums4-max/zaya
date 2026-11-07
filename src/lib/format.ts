@@ -1,6 +1,6 @@
-export const CURRENCY = "GNF";
+export const CURRENCY = "FG";
 
-/** Formate un montant entier en Franc Guinéen : 2 850 000 GNF */
+/** Formate un montant entier en Franc Guinéen : 2 850 000 FG */
 export function formatPrice(value: number): string {
   const formatted = new Intl.NumberFormat("fr-FR", {
     maximumFractionDigits: 0,

@@ -2,12 +2,17 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import CookieConsent from "@/components/CookieConsent";
+import PopupAd from "@/components/PopupAd";
+import { getSettings } from "@/lib/data";
 
-export default function StoreLayout({
+export default async function StoreLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const settings = await getSettings();
+
   return (
     <>
       <Header />
@@ -15,6 +20,13 @@ export default function StoreLayout({
       <Footer />
       <CartDrawer />
       <MobileBottomNav />
+      <CookieConsent />
+      <PopupAd
+        enabled={settings.popupEnabled}
+        image={settings.popupImage}
+        link={settings.popupLink}
+        title={settings.popupTitle}
+      />
     </>
   );
 }

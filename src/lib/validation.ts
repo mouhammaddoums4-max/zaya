@@ -37,6 +37,28 @@ export const categorySchema = z.object({
   order: z.coerce.number().int().min(0).optional().default(0),
 });
 
+const emptyToNull = z
+  .string()
+  .trim()
+  .max(2000)
+  .optional()
+  .nullable()
+  .transform((v) => (v ? v : null));
+
+export const settingsSchema = z.object({
+  popupEnabled: z.boolean().optional().default(false),
+  popupImage: z
+    .string()
+    .trim()
+    .url("URL d'image invalide")
+    .optional()
+    .nullable()
+    .or(z.literal("").transform(() => null)),
+  popupLink: emptyToNull,
+  popupTitle: emptyToNull,
+  announcement: emptyToNull,
+});
+
 export const orderStatusSchema = z.object({
   status: z.enum([
     "EN_ATTENTE",

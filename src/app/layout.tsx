@@ -52,15 +52,11 @@ export const metadata: Metadata = {
     title: `${SITE.name} — ${SITE.tagline}`,
     description: SITE.description,
   },
-  icons: {
-    icon: [{ url: "/logo-zaya.png" }],
-    apple: [{ url: "/logo-zaya.png" }],
-  },
   robots: { index: true, follow: true },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0A0A0B",
+  themeColor: "#F26B21",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,

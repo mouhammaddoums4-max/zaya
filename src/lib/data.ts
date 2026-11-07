@@ -101,6 +101,16 @@ export async function getBestSellers(take = 12): Promise<ProductCardData[]> {
   return products.map(toCard);
 }
 
+export async function getPromoProducts(take = 60): Promise<ProductCardData[]> {
+  const products = await prisma.product.findMany({
+    where: { active: true, compareAtPrice: { not: null } },
+    orderBy: { sold: "desc" },
+    take,
+    select: productSelect,
+  });
+  return products.map(toCard);
+}
+
 export async function getProductBySlug(slug: string) {
   return prisma.product.findUnique({
     where: { slug },
@@ -177,6 +187,29 @@ export async function searchProducts(
     select: productSelect,
   });
   return products.map(toCard);
+}
+
+export type SiteSettings = {
+  id: string;
+  popupEnabled: boolean;
+  popupImage: string | null;
+  popupLink: string | null;
+  popupTitle: string | null;
+  announcement: string | null;
+};
+
+export async function getSettings(): Promise<SiteSettings> {
+  const s = await prisma.setting.findUnique({ where: { id: "main" } });
+  return (
+    s ?? {
+      id: "main",
+      popupEnabled: false,
+      popupImage: null,
+      popupLink: null,
+      popupTitle: null,
+      announcement: null,
+    }
+  );
 }
 
 export async function getStats() {

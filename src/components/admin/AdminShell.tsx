@@ -9,6 +9,7 @@ import {
   Package,
   FolderTree,
   ShoppingCart,
+  Settings,
   LogOut,
   ExternalLink,
   Menu,
@@ -21,6 +22,7 @@ const NAV = [
   { href: "/admin/produits", label: "Produits", icon: Package },
   { href: "/admin/categories", label: "Catégories", icon: FolderTree },
   { href: "/admin/commandes", label: "Commandes", icon: ShoppingCart },
+  { href: "/admin/parametres", label: "Paramètres", icon: Settings },
 ];
 
 export default function AdminShell({

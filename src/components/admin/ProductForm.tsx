@@ -241,7 +241,7 @@ export default function ProductForm({
           <h2 className="mb-4 font-display font-bold">Prix & stock</h2>
           <div className="space-y-4">
             <div>
-              <label className={label}>Prix (GNF) *</label>
+              <label className={label}>Prix (FG) *</label>
               <input
                 type="number"
                 min={0}
@@ -252,7 +252,7 @@ export default function ProductForm({
               />
               {form.price !== "" && (
                 <p className="mt-1 text-xs text-ink-muted">
-                  = {formatNumber(Number(form.price))} GNF
+                  = {formatNumber(Number(form.price))} FG
                 </p>
               )}
             </div>

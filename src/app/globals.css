@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --bg: #fbf8f4;
-  --fg: #16130f;
+  --bg: #f6f7f9;
+  --fg: #1f2430;
   --zaya: #f26b21;
 }
 
@@ -19,9 +19,8 @@ html {
 body {
   background-color: var(--bg);
   color: var(--fg);
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 @layer base {
@@ -35,19 +34,19 @@ body {
 
 @layer components {
   .container-zaya {
-    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+    @apply mx-auto w-full max-w-[1280px] px-3 sm:px-5 lg:px-6;
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full bg-zaya px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-zaya-600 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-zaya px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-zaya-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-full border border-black/10 bg-white px-6 py-3 text-sm font-semibold text-ink transition-all duration-200 hover:border-zaya hover:text-zaya active:scale-95;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-black/10 bg-white px-5 py-2.5 text-sm font-semibold text-ink transition-colors duration-200 hover:border-zaya hover:text-zaya active:scale-[0.98];
   }
 
   .card {
-    @apply rounded-3xl bg-white shadow-card ring-1 ring-black/5;
+    @apply rounded-xl bg-white ring-1 ring-black/[0.06];
   }
 
   .no-scrollbar::-webkit-scrollbar {
@@ -58,51 +57,30 @@ body {
     scrollbar-width: none;
   }
 
-  /* Logo blanc sur fond sombre (version blanche demandée) */
+  /* Logo blanc sur fond sombre (barre du haut, footer) */
   .logo-white {
     filter: brightness(0) invert(1);
   }
+
+  .section-title {
+    @apply font-display text-lg font-bold text-ink sm:text-xl;
+  }
 }
 
-/* Motif géométrique inspiré du soleil ZAYA */
-.pattern-grid {
-  background-image: radial-gradient(
-    circle at 1px 1px,
-    rgba(242, 107, 33, 0.14) 1px,
-    transparent 0
-  );
-  background-size: 22px 22px;
-}
-
-.text-gradient-zaya {
-  background: linear-gradient(100deg, #ff8a3d 0%, #f26b21 55%, #d4530f 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* Effet brillance sur les cartes promo */
-.shine {
+/* Soulignement orange sous les titres de section (style Jumia) */
+.title-underline {
   position: relative;
-  overflow: hidden;
+  padding-bottom: 6px;
 }
-.shine::after {
+.title-underline::after {
   content: "";
   position: absolute;
-  inset: 0;
-  transform: translateX(-100%);
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.35),
-    transparent
-  );
-  animation: shimmer 2.8s infinite;
-}
-@keyframes shimmer {
-  100% {
-    transform: translateX(100%);
-  }
+  left: 0;
+  bottom: 0;
+  width: 44px;
+  height: 3px;
+  border-radius: 3px;
+  background: #f26b21;
 }
 
 @media (prefers-reduced-motion: reduce) {

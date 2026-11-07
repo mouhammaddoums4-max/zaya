@@ -7,6 +7,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Setting {
+  id           String   @id @default("main")
+  popupEnabled Boolean  @default(false)
+  popupImage   String?
+  popupLink    String?
+  popupTitle   String?
+  announcement String?
+  updatedAt    DateTime @updatedAt
+}
+
 model Category {
   id        String    @id @default(cuid())
   name      String

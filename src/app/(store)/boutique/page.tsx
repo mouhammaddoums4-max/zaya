@@ -2,7 +2,12 @@ import Link from "next/link";
 import { SearchX, Zap } from "lucide-react";
 import ProductGrid from "@/components/ProductGrid";
 import BoutiqueToolbar from "@/components/BoutiqueToolbar";
-import { getCategories, searchProducts, getFlashDeals } from "@/lib/data";
+import {
+  getCategories,
+  searchProducts,
+  getFlashDeals,
+  getPromoProducts,
+} from "@/lib/data";
 import { CategoryIcon } from "@/components/icons";
 
 export const revalidate = 30;
@@ -19,19 +24,24 @@ type Props = {
 export default async function BoutiquePage({ searchParams }: Props) {
   const sp = await searchParams;
   const flashMode = sp.filtre === "flash";
+  const promoMode = sp.filtre === "promo";
 
   const [categories, products] = await Promise.all([
     getCategories(),
     flashMode
       ? getFlashDeals(60)
-      : searchProducts({ q: sp.q, category: sp.category, sort: sp.tri }),
+      : promoMode
+        ? getPromoProducts(60)
+        : searchProducts({ q: sp.q, category: sp.category, sort: sp.tri }),
   ]);
 
   const title = flashMode
     ? "Ventes Flash ⚡"
-    : sp.q
-      ? `Résultats pour « ${sp.q} »`
-      : "Toute la boutique";
+    : promoMode
+      ? "Promotions 🔥"
+      : sp.q
+        ? `Résultats pour « ${sp.q} »`
+        : "Toute la boutique";
 
   return (
     <div className="container-zaya py-6 sm:py-8">
@@ -47,7 +57,7 @@ export default async function BoutiquePage({ searchParams }: Props) {
         <Link
           href="/boutique"
           className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition ${
-            !sp.category && !flashMode
+            !sp.category && !flashMode && !promoMode
               ? "bg-zaya text-white"
               : "bg-white text-ink ring-1 ring-black/10 hover:ring-zaya"
           }`}
