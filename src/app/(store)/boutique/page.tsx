@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SearchX, Zap } from "lucide-react";
 import ProductGrid from "@/components/ProductGrid";
 import BoutiqueToolbar from "@/components/BoutiqueToolbar";
+import FilterSidebar from "@/components/FilterSidebar";
 import {
   getCategories,
   searchProducts,
@@ -18,6 +19,11 @@ type Props = {
     category?: string;
     tri?: string;
     filtre?: string;
+    min?: string;
+    max?: string;
+    condition?: string;
+    remise?: string;
+    instock?: string;
   }>;
 };
 
@@ -25,6 +31,7 @@ export default async function BoutiquePage({ searchParams }: Props) {
   const sp = await searchParams;
   const flashMode = sp.filtre === "flash";
   const promoMode = sp.filtre === "promo";
+  const showFilters = !flashMode && !promoMode;
 
   const [categories, products] = await Promise.all([
     getCategories(),
@@ -32,7 +39,16 @@ export default async function BoutiquePage({ searchParams }: Props) {
       ? getFlashDeals(60)
       : promoMode
         ? getPromoProducts(60)
-        : searchProducts({ q: sp.q, category: sp.category, sort: sp.tri }),
+        : searchProducts({
+            q: sp.q,
+            category: sp.category,
+            sort: sp.tri,
+            min: sp.min ? Number(sp.min) : undefined,
+            max: sp.max ? Number(sp.max) : undefined,
+            condition: sp.condition,
+            minDiscount: sp.remise ? Number(sp.remise) : undefined,
+            inStock: sp.instock === "1",
+          }),
   ]);
 
   const title = flashMode
@@ -80,28 +96,34 @@ export default async function BoutiquePage({ searchParams }: Props) {
         ))}
       </div>
 
-      <div className="mb-5">
-        <BoutiqueToolbar count={products.length} />
-      </div>
+      <div className="flex flex-col gap-6 lg:flex-row">
+        {showFilters && <FilterSidebar />}
 
-      {products.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-zaya-50">
-            <SearchX className="h-9 w-9 text-zaya" />
+        <div className="min-w-0 flex-1">
+          <div className="mb-5">
+            <BoutiqueToolbar count={products.length} />
           </div>
-          <div>
-            <p className="font-display text-lg font-bold">Aucun produit trouvé</p>
-            <p className="mt-1 text-sm text-ink-muted">
-              Essayez une autre recherche ou catégorie.
-            </p>
-          </div>
-          <Link href="/boutique" className="btn-primary">
-            Voir toute la boutique
-          </Link>
+
+          {products.length === 0 ? (
+            <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-zaya-50">
+                <SearchX className="h-9 w-9 text-zaya" />
+              </div>
+              <div>
+                <p className="font-display text-lg font-bold">Aucun produit trouvé</p>
+                <p className="mt-1 text-sm text-ink-muted">
+                  Essayez d'ajuster vos filtres ou votre recherche.
+                </p>
+              </div>
+              <Link href="/boutique" className="btn-primary">
+                Voir toute la boutique
+              </Link>
+            </div>
+          ) : (
+            <ProductGrid products={products} />
+          )}
         </div>
-      ) : (
-        <ProductGrid products={products} />
-      )}
+      </div>
     </div>
   );
 }

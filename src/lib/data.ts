@@ -169,6 +169,9 @@ export type ProductQuery = {
   sort?: string;
   min?: number;
   max?: number;
+  condition?: string;
+  minDiscount?: number;
+  inStock?: boolean;
 };
 
 export async function searchProducts(
@@ -190,6 +193,12 @@ export async function searchProducts(
     if (query.min != null) (where.price as Record<string, number>).gte = query.min;
     if (query.max != null) (where.price as Record<string, number>).lte = query.max;
   }
+  if (query.condition) {
+    where.condition = query.condition;
+  }
+  if (query.inStock) {
+    where.stock = { gt: 0 };
+  }
 
   let orderBy: Record<string, string> = { sold: "desc" };
   switch (query.sort) {
@@ -210,10 +219,20 @@ export async function searchProducts(
   const products = await prisma.product.findMany({
     where,
     orderBy,
-    take: 60,
+    take: 120,
     select: productSelect,
   });
-  return products.map(toCard);
+  let cards = products.map(toCard);
+
+  // Filtre remise minimale (calculée) côté serveur
+  if (query.minDiscount && query.minDiscount > 0) {
+    cards = cards.filter((p) => {
+      if (!p.compareAtPrice || p.compareAtPrice <= p.price) return false;
+      const d = Math.round(((p.compareAtPrice - p.price) / p.compareAtPrice) * 100);
+      return d >= query.minDiscount!;
+    });
+  }
+  return cards.slice(0, 80);
 }
 
 export type Slide = {
