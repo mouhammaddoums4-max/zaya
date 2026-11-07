@@ -24,6 +24,19 @@ export default function SmartImage({
   const [failed, setFailed] = useState(false);
   const valid = src && src.length > 4;
 
+  // Images importées depuis l'appareil (data URL) : rendu <img> simple
+  if (valid && !failed && src!.startsWith("data:")) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return (
+      <img
+        src={src as string}
+        alt={alt}
+        className={cn("absolute inset-0 h-full w-full object-cover", className)}
+        onError={() => setFailed(true)}
+      />
+    );
+  }
+
   if (!valid || failed) {
     return (
       <div

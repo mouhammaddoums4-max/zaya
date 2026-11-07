@@ -5,12 +5,13 @@ import TrustBadges from "@/components/TrustBadges";
 import CategoriesShowcase from "@/components/CategoriesShowcase";
 import PromoBanners from "@/components/PromoBanners";
 import FlashDeals from "@/components/FlashDeals";
-import ProductGrid from "@/components/ProductGrid";
+import ProductGridWithAds from "@/components/ProductGridWithAds";
 import {
   getCategories,
   getFlashDeals,
   getBestSellers,
   getNewProducts,
+  getSettings,
 } from "@/lib/data";
 
 export const revalidate = 60;
@@ -44,23 +45,24 @@ function SectionTitle({
 }
 
 export default async function HomePage() {
-  const [categories, flash, best, fresh] = await Promise.all([
+  const [categories, flash, best, fresh, settings] = await Promise.all([
     getCategories(),
     getFlashDeals(12),
     getBestSellers(12),
     getNewProducts(12),
+    getSettings(),
   ]);
 
   return (
     <>
-      <HomeHero categories={categories} />
+      <HomeHero categories={categories} slides={settings.slides} />
 
       <div className="container-zaya space-y-8 py-6 sm:space-y-10 sm:py-8">
         <TrustBadges />
 
         <CategoriesShowcase categories={categories} />
 
-        <PromoBanners />
+        <PromoBanners banners={settings.banners} />
 
         {flash.length > 0 && <FlashDeals products={flash} />}
 
@@ -71,7 +73,7 @@ export default async function HomePage() {
               href="/boutique?tri=populaire"
               icon={<TrendingUp className="h-5 w-5 text-zaya" />}
             />
-            <ProductGrid products={best} />
+            <ProductGridWithAds products={best} ads={settings.squareAds} />
           </section>
         )}
 
@@ -82,7 +84,7 @@ export default async function HomePage() {
               href="/boutique?tri=nouveau"
               icon={<Sparkles className="h-5 w-5 text-zaya" />}
             />
-            <ProductGrid products={fresh} />
+            <ProductGridWithAds products={fresh} ads={settings.squareAds} />
           </section>
         )}
       </div>

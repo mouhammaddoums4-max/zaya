@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Plus, Trash2, ImageIcon } from "lucide-react";
+import { Loader2, Plus, Trash2, ImageIcon, Upload } from "lucide-react";
 import SmartImage from "@/components/SmartImage";
 import { toast } from "@/components/Toaster";
 import { formatNumber } from "@/lib/format";
+import { compressImageFile } from "@/lib/imageCompress";
 
 type Category = { id: string; name: string };
 
@@ -55,7 +56,44 @@ export default function ProductForm({
   );
   const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const isEdit = Boolean(initial?.id);
+
+  const onFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    setUploading(true);
+    try {
+      const results: string[] = [];
+      for (const file of Array.from(files)) {
+        if (file.size > 12 * 1024 * 1024) {
+          toast(`${file.name} est trop lourd (max 12 Mo)`, "error");
+          continue;
+        }
+        try {
+          const dataUrl = await compressImageFile(file);
+          const res = await fetch("/api/admin/upload", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ dataUrl }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Upload échoué");
+          results.push(data.url);
+        } catch (err) {
+          toast(
+            err instanceof Error ? err.message : `Impossible de traiter ${file.name}`,
+            "error",
+          );
+        }
+      }
+      if (results.length) {
+        setForm((f) => ({ ...f, images: [...f.images, ...results].slice(0, 8) }));
+        toast(`${results.length} image(s) ajoutée(s) ✅`);
+      }
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const set = <K extends keyof ProductFormData>(k: K, v: ProductFormData[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
@@ -179,8 +217,42 @@ export default function ProductForm({
         {/* Images */}
         <div className="rounded-2xl bg-white p-5 shadow-card ring-1 ring-black/5">
           <h2 className="mb-1 font-display font-bold">Images</h2>
-          <p className="mb-4 text-xs text-ink-muted">
-            Collez l'URL d'une image (http/https). La première image est la principale.
+          <p className="mb-3 text-xs text-ink-muted">
+            Importez vos photos depuis l'appareil (recommandé : carré, min. 800×800 px).
+            La première image est la principale.
+          </p>
+
+          {/* Import depuis l'appareil */}
+          <label
+            className={`mb-3 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-zaya/40 bg-zaya-50/50 py-6 text-center transition hover:border-zaya ${
+              uploading ? "pointer-events-none opacity-60" : ""
+            }`}
+          >
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                onFiles(e.target.files);
+                e.target.value = "";
+              }}
+            />
+            {uploading ? (
+              <Loader2 className="h-6 w-6 animate-spin text-zaya" />
+            ) : (
+              <Upload className="h-6 w-6 text-zaya" />
+            )}
+            <span className="text-sm font-semibold text-zaya">
+              {uploading ? "Traitement…" : "Importer des photos"}
+            </span>
+            <span className="text-[11px] text-ink-muted">
+              JPG, PNG — depuis votre téléphone ou ordinateur
+            </span>
+          </label>
+
+          <p className="mb-2 text-center text-[11px] text-ink-muted">
+            ou collez un lien d'image
           </p>
           <div className="mb-4 flex gap-2">
             <input

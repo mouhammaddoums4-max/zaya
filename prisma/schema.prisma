@@ -7,6 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model MediaImage {
+  id        String   @id @default(cuid())
+  data      Bytes
+  mime      String   @default("image/jpeg")
+  createdAt DateTime @default(now())
+}
+
 model Setting {
   id           String   @id @default("main")
   popupEnabled Boolean  @default(false)
@@ -14,6 +21,9 @@ model Setting {
   popupLink    String?
   popupTitle   String?
   announcement String?
+  slides       Json? // [{ image, title, subtitle, cta, link }]
+  banners      Json? // [{ image, title, subtitle, cta, link }]
+  squareAds    Json? // [{ image, link }] bannieres carrees inserees dans les grilles
   updatedAt    DateTime @updatedAt
 }
 

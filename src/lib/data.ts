@@ -189,6 +189,16 @@ export async function searchProducts(
   return products.map(toCard);
 }
 
+export type Slide = {
+  image: string;
+  title?: string;
+  subtitle?: string;
+  cta?: string;
+  link?: string;
+};
+export type Banner = Slide;
+export type SquareAd = { image: string; link?: string };
+
 export type SiteSettings = {
   id: string;
   popupEnabled: boolean;
@@ -196,20 +206,31 @@ export type SiteSettings = {
   popupLink: string | null;
   popupTitle: string | null;
   announcement: string | null;
+  slides: Slide[];
+  banners: Banner[];
+  squareAds: SquareAd[];
 };
+
+function parseArray<T>(value: unknown): T[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter(
+    (v) => v && typeof v === "object" && typeof (v as { image?: unknown }).image === "string" && (v as { image: string }).image.length > 4,
+  ) as T[];
+}
 
 export async function getSettings(): Promise<SiteSettings> {
   const s = await prisma.setting.findUnique({ where: { id: "main" } });
-  return (
-    s ?? {
-      id: "main",
-      popupEnabled: false,
-      popupImage: null,
-      popupLink: null,
-      popupTitle: null,
-      announcement: null,
-    }
-  );
+  return {
+    id: "main",
+    popupEnabled: s?.popupEnabled ?? false,
+    popupImage: s?.popupImage ?? null,
+    popupLink: s?.popupLink ?? null,
+    popupTitle: s?.popupTitle ?? null,
+    announcement: s?.announcement ?? null,
+    slides: parseArray<Slide>(s?.slides),
+    banners: parseArray<Banner>(s?.banners),
+    squareAds: parseArray<SquareAd>(s?.squareAds),
+  };
 }
 
 export async function getStats() {

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Search,
@@ -55,6 +55,8 @@ export default function HeaderClient({
   const [query, setQuery] = useState("");
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const filtre = searchParams.get("filtre");
   const cartCount = useCart((s) => s.count());
   const openCart = useCart((s) => s.open);
   const wishCount = useWishlist((s) => s.count());
@@ -87,9 +89,14 @@ export default function HeaderClient({
 
   if (pathname.startsWith("/admin")) return null;
 
-  const isActive = (href: string, exact?: boolean) => {
-    const base = href.split("?")[0];
-    return exact ? pathname === base : pathname === base;
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    if (href === "/boutique") return pathname === "/boutique" && !filtre;
+    if (href === "/boutique?filtre=promo")
+      return pathname.startsWith("/boutique") && filtre === "promo";
+    if (href === "/boutique?filtre=flash")
+      return pathname.startsWith("/boutique") && filtre === "flash";
+    return pathname === href;
   };
 
   return (
@@ -299,7 +306,7 @@ export default function HeaderClient({
             {/* Onglets */}
             <nav className="flex items-center">
               {NAV.map((item) => {
-                const active = isActive(item.href, item.exact);
+                const active = isActive(item.href);
                 return (
                   <Link
                     key={item.label}

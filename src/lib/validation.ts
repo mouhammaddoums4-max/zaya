@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+// Accepte : lien http(s), chemin interne (/api/img/...), ou data URL
+export const imageUrl = z
+  .string()
+  .trim()
+  .regex(/^(https?:\/\/|\/|data:image\/).+/i, "Image invalide");
+
 export const productSchema = z.object({
   name: z.string().trim().min(2, "Nom requis").max(160),
   categoryId: z.string().min(1, "Catégorie requise"),
@@ -12,7 +18,7 @@ export const productSchema = z.object({
     .nullable()
     .or(z.literal("").transform(() => null)),
   description: z.string().trim().max(5000).optional().default(""),
-  images: z.array(z.string().trim().url("URL d'image invalide")).max(8).default([]),
+  images: z.array(imageUrl).max(8).default([]),
   stock: z.coerce.number().int().min(0).default(100),
   brand: z.string().trim().max(80).optional().nullable(),
   rating: z.coerce.number().min(0).max(5).optional().default(4.6),
@@ -27,13 +33,7 @@ export type ProductInput = z.infer<typeof productSchema>;
 export const categorySchema = z.object({
   name: z.string().trim().min(2, "Nom requis").max(80),
   icon: z.string().trim().max(40).optional().nullable(),
-  image: z
-    .string()
-    .trim()
-    .url("URL invalide")
-    .optional()
-    .nullable()
-    .or(z.literal("").transform(() => null)),
+  image: imageUrl.optional().nullable().or(z.literal("").transform(() => null)),
   order: z.coerce.number().int().min(0).optional().default(0),
 });
 
@@ -45,18 +45,33 @@ const emptyToNull = z
   .nullable()
   .transform((v) => (v ? v : null));
 
+const optText = z.string().trim().max(200).optional().default("");
+
+const slideSchema = z.object({
+  image: imageUrl,
+  title: optText,
+  subtitle: optText,
+  cta: optText,
+  link: optText,
+});
+
+const squareAdSchema = z.object({
+  image: imageUrl,
+  link: optText,
+});
+
 export const settingsSchema = z.object({
   popupEnabled: z.boolean().optional().default(false),
-  popupImage: z
-    .string()
-    .trim()
-    .url("URL d'image invalide")
-    .optional()
-    .nullable()
-    .or(z.literal("").transform(() => null)),
+  popupImage: imageUrl.optional().nullable().or(z.literal("").transform(() => null)),
   popupLink: emptyToNull,
   popupTitle: emptyToNull,
   announcement: emptyToNull,
+});
+
+export const contentSchema = z.object({
+  slides: z.array(slideSchema).max(10).default([]),
+  banners: z.array(slideSchema).max(6).default([]),
+  squareAds: z.array(squareAdSchema).max(12).default([]),
 });
 
 export const promoSchema = z.object({

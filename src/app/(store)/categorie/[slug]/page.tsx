@@ -2,10 +2,10 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ChevronRight } from "lucide-react";
-import ProductGrid from "@/components/ProductGrid";
+import ProductGridWithAds from "@/components/ProductGridWithAds";
 import BoutiqueToolbar from "@/components/BoutiqueToolbar";
 import { CategoryIcon } from "@/components/icons";
-import { getCategoryBySlug, searchProducts } from "@/lib/data";
+import { getCategoryBySlug, searchProducts, getSettings } from "@/lib/data";
 
 export const revalidate = 30;
 
@@ -30,7 +30,10 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const category = await getCategoryBySlug(slug);
   if (!category) notFound();
 
-  const products = await searchProducts({ category: slug, sort: sp.tri });
+  const [products, settings] = await Promise.all([
+    searchProducts({ category: slug, sort: sp.tri }),
+    getSettings(),
+  ]);
 
   return (
     <div className="container-zaya py-6 sm:py-8">
@@ -58,7 +61,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           Aucun produit dans cette catégorie pour le moment.
         </p>
       ) : (
-        <ProductGrid products={products} />
+        <ProductGridWithAds products={products} ads={settings.squareAds} />
       )}
     </div>
   );

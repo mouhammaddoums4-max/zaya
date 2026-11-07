@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { orderReference } from "@/lib/utils";
 import { SITE } from "@/lib/constants";
 import { validatePromo } from "@/lib/promo";
+import { sendOrderNotification } from "@/lib/email";
 
 const schema = z.object({
   customerName: z.string().trim().min(2, "Nom requis").max(80),
@@ -122,6 +123,21 @@ export async function POST(req: Request) {
       })
       .catch(() => null);
   }
+
+  // Notification email à l'admin (non bloquant)
+  await sendOrderNotification({
+    reference: order.reference,
+    customerName: order.customerName,
+    phone: order.phone,
+    location: order.location,
+    note: order.note,
+    total: order.total,
+    items: lineItems.map((i) => ({
+      productName: i.productName,
+      quantity: i.quantity,
+      price: i.price,
+    })),
+  });
 
   return NextResponse.json({
     ok: true,
