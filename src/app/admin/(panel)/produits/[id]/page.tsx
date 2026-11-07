@@ -46,6 +46,7 @@ export default async function EditProduitPage({ params }: Props) {
           featured: product.featured,
           isFlashDeal: product.isFlashDeal,
           active: product.active,
+          condition: product.condition,
         }}
       />
     </div>

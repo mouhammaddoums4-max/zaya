@@ -10,6 +10,8 @@ import {
   ShoppingCart,
   Ticket,
   Settings,
+  Users,
+  Palette,
   LogOut,
   ExternalLink,
 } from "lucide-react";
@@ -20,7 +22,9 @@ const NAV = [
   { href: "/admin/produits", label: "Produits", icon: Package },
   { href: "/admin/categories", label: "Catégories", icon: FolderTree },
   { href: "/admin/commandes", label: "Commandes", icon: ShoppingCart },
+  { href: "/admin/clients", label: "Carnet client", icon: Users },
   { href: "/admin/codes", label: "Codes promo", icon: Ticket },
+  { href: "/admin/apparence", label: "Apparence", icon: Palette },
   { href: "/admin/parametres", label: "Paramètres", icon: Settings },
 ];
 
@@ -53,7 +57,7 @@ function DockButton({
       {/* Icône */}
       <span
         className={cn(
-          "relative flex h-11 w-11 items-center justify-center rounded-2xl transition-all duration-200 group-hover:-translate-y-1 group-hover:scale-110",
+          "relative flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-200 group-hover:-translate-y-1 group-hover:scale-110",
           active
             ? "bg-zaya text-white shadow-lg shadow-zaya/30"
             : tone === "danger"
@@ -61,7 +65,7 @@ function DockButton({
               : "text-ink/60 hover:bg-black/5 hover:text-ink",
         )}
       >
-        <Icon className="h-5 w-5" />
+        <Icon className="h-6 w-6" />
         {badge && badge > 0 ? (
           <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-zaya px-1 text-[10px] font-bold text-white ring-2 ring-white">
             {badge > 99 ? "99+" : badge}
@@ -110,7 +114,7 @@ export default function AdminShell({
       </header>
 
       {/* Contenu — espace réservé en bas pour le dock */}
-      <main className="p-4 pb-32 sm:p-6 sm:pb-32 lg:p-8 lg:pb-32">
+      <main className="p-4 pb-44 sm:p-6 sm:pb-44 lg:p-8 lg:pb-40">
         {children}
       </main>
 
@@ -119,7 +123,7 @@ export default function AdminShell({
         aria-label="Navigation admin"
         className="fixed inset-x-0 bottom-5 z-50 flex justify-center px-3"
       >
-        <div className="flex max-w-full items-center gap-1 overflow-x-auto rounded-[1.75rem] border border-black/5 bg-white/85 p-2 shadow-2xl shadow-black/15 backdrop-blur-xl">
+        <div className="flex max-w-full flex-wrap items-center justify-center gap-1.5 rounded-[1.75rem] border border-black/5 bg-white/85 p-2.5 shadow-2xl shadow-black/15 backdrop-blur-xl">
           {NAV.map((item) => (
             <Link key={item.href} href={item.href} aria-label={item.label}>
               <DockButton

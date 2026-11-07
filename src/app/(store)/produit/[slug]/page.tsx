@@ -89,6 +89,7 @@ export default async function ProductPage({ params }: Props) {
           sold: product.sold,
           stock: product.stock,
           brand: product.brand,
+          condition: product.condition,
         }}
         url={url}
       />

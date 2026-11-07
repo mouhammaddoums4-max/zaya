@@ -26,6 +26,10 @@ export const productSchema = z.object({
   featured: z.boolean().optional().default(false),
   isFlashDeal: z.boolean().optional().default(false),
   active: z.boolean().optional().default(true),
+  condition: z
+    .enum(["NEUF", "OCCASION", "RECONDITIONNE"])
+    .optional()
+    .default("NEUF"),
 });
 
 export type ProductInput = z.infer<typeof productSchema>;
@@ -34,6 +38,12 @@ export const categorySchema = z.object({
   name: z.string().trim().min(2, "Nom requis").max(80),
   icon: z.string().trim().max(40).optional().nullable(),
   image: imageUrl.optional().nullable().or(z.literal("").transform(() => null)),
+  parentId: z
+    .string()
+    .trim()
+    .optional()
+    .nullable()
+    .or(z.literal("").transform(() => null)),
   order: z.coerce.number().int().min(0).optional().default(0),
 });
 

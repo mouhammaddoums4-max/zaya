@@ -13,6 +13,8 @@ export default async function AdminCategoriesPage() {
     id: c.id,
     name: c.name,
     icon: c.icon,
+    image: c.image,
+    parentId: c.parentId,
     productCount: c._count.products,
   }));
 

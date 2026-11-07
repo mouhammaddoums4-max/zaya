@@ -8,7 +8,7 @@ import { useWishlist } from "@/store/wishlist";
 import { toast } from "./Toaster";
 import SmartImage from "./SmartImage";
 import { formatPrice, discountPercent } from "@/lib/format";
-import type { ProductCardData } from "@/lib/types";
+import { CONDITION_META, type ProductCardData } from "@/lib/types";
 import { useEffect, useState } from "react";
 
 export default function ProductCard({
@@ -110,10 +110,16 @@ export default function ProductCard({
           </h3>
         </Link>
 
-        <div className="mt-1 flex items-center gap-1 text-xs text-ink-muted">
-          <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-          <span className="font-medium text-ink">{product.rating.toFixed(1)}</span>
-          {product.sold > 0 && <span>· {product.sold} vendus</span>}
+        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-ink-muted">
+          <span className="flex items-center gap-1">
+            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+            <span className="font-medium text-ink">{product.rating.toFixed(1)}</span>
+          </span>
+          <span
+            className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${CONDITION_META[product.condition].badge}`}
+          >
+            {CONDITION_META[product.condition].label}
+          </span>
         </div>
 
         <div className="mt-1.5">

@@ -47,7 +47,7 @@ export default function CookieConsent() {
               <p className="text-sm text-white/80">
                 Nous utilisons des cookies pour améliorer votre expérience sur ZAYA.
                 En continuant, vous acceptez notre{" "}
-                <Link href="/a-propos" className="font-semibold text-zaya-400 underline">
+                <Link href="/politiques" className="font-semibold text-zaya-400 underline">
                   politique de confidentialité
                 </Link>
                 .

@@ -23,12 +23,16 @@ export async function PUT(req: Request, { params }: Ctx) {
   }
   const d = parsed.data;
 
+  // empêche qu'une catégorie soit son propre parent
+  const parentId = d.parentId && d.parentId !== id ? d.parentId : null;
+
   await prisma.category.update({
     where: { id },
     data: {
       name: d.name,
       icon: d.icon || null,
       image: d.image || null,
+      parentId,
       order: d.order ?? 0,
     },
   });

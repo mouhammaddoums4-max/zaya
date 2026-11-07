@@ -5,6 +5,8 @@ import { orderReference } from "@/lib/utils";
 import { SITE } from "@/lib/constants";
 import { validatePromo } from "@/lib/promo";
 import { sendOrderNotification } from "@/lib/email";
+import { sendSms } from "@/lib/sms";
+import { formatPrice } from "@/lib/format";
 
 const schema = z.object({
   customerName: z.string().trim().min(2, "Nom requis").max(80),
@@ -123,6 +125,19 @@ export async function POST(req: Request) {
       })
       .catch(() => null);
   }
+
+  // SMS client + admin (non bloquant)
+  const adminSms = process.env.ADMIN_SMS_NUMBER || "224628358080";
+  await Promise.allSettled([
+    sendSms(
+      order.phone,
+      `ZAYA: Bonjour ${order.customerName}, votre commande ${order.reference} est bien enregistree (${formatPrice(order.total)}). Nous vous appelons pour la livraison. Merci !`,
+    ),
+    sendSms(
+      adminSms,
+      `ZAYA - Nouvelle commande ${order.reference}: ${order.customerName}, ${order.phone}, ${order.location}. Total ${formatPrice(order.total)}.`,
+    ),
+  ]);
 
   // Notification email à l'admin (non bloquant)
   await sendOrderNotification({

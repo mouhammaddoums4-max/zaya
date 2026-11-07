@@ -25,6 +25,7 @@ export type ProductFormData = {
   featured: boolean;
   isFlashDeal: boolean;
   active: boolean;
+  condition: "NEUF" | "OCCASION" | "RECONDITIONNE";
 };
 
 const empty: ProductFormData = {
@@ -41,6 +42,7 @@ const empty: ProductFormData = {
   featured: false,
   isFlashDeal: false,
   active: true,
+  condition: "NEUF",
 };
 
 export default function ProductForm({
@@ -134,6 +136,7 @@ export default function ProductForm({
       featured: form.featured,
       isFlashDeal: form.isFlashDeal,
       active: form.active,
+      condition: form.condition,
     };
 
     try {
@@ -348,6 +351,20 @@ export default function ProductForm({
                 onChange={(e) => set("stock", e.target.value)}
                 className={field}
               />
+            </div>
+            <div>
+              <label className={label}>État</label>
+              <select
+                value={form.condition}
+                onChange={(e) =>
+                  set("condition", e.target.value as ProductFormData["condition"])
+                }
+                className={field}
+              >
+                <option value="NEUF">Neuf</option>
+                <option value="OCCASION">Occasion</option>
+                <option value="RECONDITIONNE">Reconditionné</option>
+              </select>
             </div>
           </div>
         </div>

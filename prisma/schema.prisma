@@ -28,14 +28,19 @@ model Setting {
 }
 
 model Category {
-  id        String    @id @default(cuid())
+  id        String     @id @default(cuid())
   name      String
-  slug      String    @unique
+  slug      String     @unique
   icon      String?
   image     String?
-  order     Int       @default(0)
+  order     Int        @default(0)
+  parentId  String?
+  parent    Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children  Category[] @relation("CategoryTree")
   products  Product[]
-  createdAt DateTime  @default(now())
+  createdAt DateTime   @default(now())
+
+  @@index([parentId])
 }
 
 model Product {
@@ -52,7 +57,8 @@ model Product {
   sold           Int         @default(0)
   featured       Boolean     @default(false)
   isFlashDeal    Boolean     @default(false)
-  active         Boolean     @default(true)
+  active         Boolean          @default(true)
+  condition      ProductCondition @default(NEUF)
   brand          String?
   categoryId     String
   category       Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
@@ -75,6 +81,12 @@ enum OrderStatus {
 enum DiscountType {
   PERCENT
   FIXED
+}
+
+enum ProductCondition {
+  NEUF
+  OCCASION
+  RECONDITIONNE
 }
 
 model PromoCode {

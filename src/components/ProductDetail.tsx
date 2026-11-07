@@ -18,6 +18,7 @@ import { toast } from "./Toaster";
 import SmartImage from "./SmartImage";
 import ShareButtons from "./ShareButtons";
 import { formatPrice, discountPercent } from "@/lib/format";
+import { CONDITION_META, type ProductCondition } from "@/lib/types";
 
 type DetailProduct = {
   id: string;
@@ -32,6 +33,7 @@ type DetailProduct = {
   sold: number;
   stock: number;
   brand: string | null;
+  condition: ProductCondition;
 };
 
 export default function ProductDetail({
@@ -148,6 +150,11 @@ export default function ProductDetail({
           </span>
           <span className="text-ink-muted">·</span>
           <span className="text-ink-muted">{product.sold} vendus</span>
+          <span
+            className={`rounded-full px-2 py-0.5 text-xs font-semibold ${CONDITION_META[product.condition].badge}`}
+          >
+            {CONDITION_META[product.condition].label}
+          </span>
         </div>
 
         <div className="mt-5 flex items-end gap-3">

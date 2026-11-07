@@ -15,6 +15,7 @@ const productSelect = {
   stock: true,
   brand: true,
   isFlashDeal: true,
+  condition: true,
   category: { select: { name: true, slug: true } },
 } as const;
 
@@ -31,6 +32,7 @@ type RawProduct = {
   stock: number;
   brand: string | null;
   isFlashDeal: boolean;
+  condition: "NEUF" | "OCCASION" | "RECONDITIONNE";
   category: { name: string; slug: string } | null;
 };
 
@@ -48,17 +50,42 @@ function toCard(p: RawProduct): ProductCardData {
     stock: p.stock,
     brand: p.brand,
     isFlashDeal: p.isFlashDeal,
+    condition: p.condition,
     categoryName: p.category?.name,
     categorySlug: p.category?.slug,
   };
 }
 
+/** Catégories de navigation : uniquement les catégories parentes (sans parent). */
 export async function getCategories(): Promise<CategoryData[]> {
   const cats = await prisma.category.findMany({
+    where: { parentId: null },
     orderBy: { order: "asc" },
-    select: { id: true, name: true, slug: true, icon: true, image: true },
+    select: { id: true, name: true, slug: true, icon: true, image: true, parentId: true },
   });
   return cats;
+}
+
+/** Catégories parentes (sans parent) avec leurs sous-catégories. */
+export async function getCategoryTree() {
+  const all = await prisma.category.findMany({
+    orderBy: { order: "asc" },
+    select: { id: true, name: true, slug: true, icon: true, image: true, parentId: true },
+  });
+  const parents = all.filter((c) => !c.parentId);
+  return parents.map((p) => ({
+    ...p,
+    children: all.filter((c) => c.parentId === p.id),
+  }));
+}
+
+/** Sous-catégories d'une catégorie donnée. */
+export async function getSubcategories(parentId: string): Promise<CategoryData[]> {
+  return prisma.category.findMany({
+    where: { parentId },
+    orderBy: { order: "asc" },
+    select: { id: true, name: true, slug: true, icon: true, image: true, parentId: true },
+  });
 }
 
 export async function getFeaturedProducts(take = 10): Promise<ProductCardData[]> {

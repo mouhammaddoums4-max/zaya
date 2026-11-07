@@ -63,7 +63,7 @@ export default async function Footer() {
               <Phone className="h-4 w-4 text-zaya-400" /> +{SITE.whatsapp}
             </li>
             <li className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-zaya-400" /> contact@zaya.com
+              <Mail className="h-4 w-4 text-zaya-400" /> {SITE.email}
             </li>
             <li className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-zaya-400" /> Conakry, Guinée
@@ -95,9 +95,9 @@ export default async function Footer() {
         <div className="container-zaya flex flex-col items-center justify-between gap-2 py-5 text-xs text-white/50 sm:flex-row">
           <p>© {new Date().getFullYear()} ZAYA. Tous droits réservés.</p>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <Link href="/a-propos" className="hover:text-white">Conditions d'utilisation</Link>
-            <Link href="/a-propos" className="hover:text-white">Politique de confidentialité</Link>
-            <Link href="/a-propos" className="hover:text-white">Mentions légales</Link>
+            <Link href="/politiques" className="hover:text-white">Politique de vente</Link>
+            <Link href="/politiques" className="hover:text-white">Confidentialité</Link>
+            <Link href="/a-propos" className="hover:text-white">À propos</Link>
           </div>
         </div>
       </div>

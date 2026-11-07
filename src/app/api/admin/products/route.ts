@@ -47,6 +47,7 @@ export async function POST(req: Request) {
       featured: d.featured ?? false,
       isFlashDeal: d.isFlashDeal ?? false,
       active: d.active ?? true,
+      condition: d.condition ?? "NEUF",
       categoryId: d.categoryId,
     },
   });

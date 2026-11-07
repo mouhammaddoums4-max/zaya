@@ -5,7 +5,7 @@ import { ChevronRight } from "lucide-react";
 import ProductGridWithAds from "@/components/ProductGridWithAds";
 import BoutiqueToolbar from "@/components/BoutiqueToolbar";
 import { CategoryIcon } from "@/components/icons";
-import { getCategoryBySlug, searchProducts, getSettings } from "@/lib/data";
+import { getCategoryBySlug, searchProducts, getSettings, getSubcategories } from "@/lib/data";
 
 export const revalidate = 30;
 
@@ -30,9 +30,10 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const category = await getCategoryBySlug(slug);
   if (!category) notFound();
 
-  const [products, settings] = await Promise.all([
+  const [products, settings, subcats] = await Promise.all([
     searchProducts({ category: slug, sort: sp.tri }),
     getSettings(),
+    getSubcategories(category.id),
   ]);
 
   return (
@@ -51,6 +52,21 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           {category.name}
         </h1>
       </div>
+
+      {subcats.length > 0 && (
+        <div className="mb-5 flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+          {subcats.map((sc) => (
+            <Link
+              key={sc.id}
+              href={`/categorie/${sc.slug}`}
+              className="flex shrink-0 items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-medium text-ink ring-1 ring-black/10 transition hover:ring-zaya"
+            >
+              <CategoryIcon name={sc.icon} className="h-4 w-4 text-zaya" />
+              {sc.name}
+            </Link>
+          ))}
+        </div>
+      )}
 
       <div className="mb-5">
         <BoutiqueToolbar count={products.length} />

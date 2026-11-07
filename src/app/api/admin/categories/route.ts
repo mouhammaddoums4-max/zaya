@@ -30,6 +30,7 @@ export async function POST(req: Request) {
       slug,
       icon: d.icon || null,
       image: d.image || null,
+      parentId: d.parentId || null,
       order: d.order ?? 0,
     },
   });

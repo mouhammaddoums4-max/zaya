@@ -9,30 +9,27 @@ import SmartImage from "./SmartImage";
 import type { CategoryData } from "@/lib/types";
 import type { Slide } from "@/lib/data";
 
-const img = (id: string) =>
-  `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1400&q=70`;
-
 const DEFAULT_SLIDES: Slide[] = [
   {
     title: "Achetez malin.\nVendez facilement.",
     subtitle: "Tout ce dont vous avez besoin, au meilleur prix !",
     cta: "Découvrir maintenant",
     link: "/boutique",
-    image: img("1483985988355-763728e1935b"),
+    image: "/hero/hero-1.png",
   },
   {
-    title: "Ventes Flash\nchaque jour",
-    subtitle: "Jusqu'à -50% sur une sélection de produits.",
-    cta: "Voir les offres",
-    link: "/boutique?filtre=flash",
-    image: img("1607083206968-13611e3d76db"),
-  },
-  {
-    title: "Livré partout\nen Guinée",
-    subtitle: "Paiement à la livraison, en toute confiance.",
-    cta: "Commander maintenant",
+    title: "Mode homme\ntendance",
+    subtitle: "Chemises, boubous et styles premium pour lui.",
+    cta: "Voir la collection",
     link: "/boutique",
-    image: img("1556742049-0cfed4f6a45d"),
+    image: "/hero/hero-2.png",
+  },
+  {
+    title: "Élégance femme\nà l'africaine",
+    subtitle: "Tenues, accessoires et beauté — livrés chez vous.",
+    cta: "Découvrir",
+    link: "/boutique",
+    image: "/hero/hero-3.png",
   },
 ];
 
