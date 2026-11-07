@@ -1,7 +1,12 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { SITE } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
+
+type ProductWithCategory = Prisma.ProductGetPayload<{
+  include: { category: true };
+}>;
 
 function csvCell(v: string) {
   const s = (v ?? "").replace(/"/g, '""').replace(/\r?\n/g, " ");
@@ -21,12 +26,15 @@ const CONDITION_MAP: Record<string, string> = {
 export async function GET() {
   const base = SITE.url.replace(/\/$/, "");
 
-  const products = await prisma.product
-    .findMany({
+  let products: ProductWithCategory[] = [];
+  try {
+    products = await prisma.product.findMany({
       where: { active: true },
       include: { category: true },
-    })
-    .catch(() => []);
+    });
+  } catch {
+    products = [];
+  }
 
   const header = [
     "id",
