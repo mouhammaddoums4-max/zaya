@@ -34,6 +34,8 @@ type Order = {
   total: number;
   createdAt: string;
   driverId: string | null;
+  paid: boolean;
+  receiptUrl: string;
   items: Item[];
 };
 
@@ -63,6 +65,24 @@ export default function OrdersManager({
       router.refresh();
     } catch {
       toast("Erreur d'assignation", "error");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const markPaid = async (id: string) => {
+    setBusy(id);
+    try {
+      const res = await fetch(`/api/admin/orders/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paid: true }),
+      });
+      if (!res.ok) throw new Error();
+      toast("Paiement enregistré ✅ (reçu envoyé par SMS)");
+      router.refresh();
+    } catch {
+      toast("Erreur", "error");
     } finally {
       setBusy(null);
     }
@@ -227,6 +247,28 @@ export default function OrdersManager({
                   >
                     <Phone className="h-4 w-4" /> WhatsApp
                   </a>
+                  {o.paid ? (
+                    <a
+                      href={o.receiptUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-600"
+                    >
+                      ✓ Payé · Voir le reçu
+                    </a>
+                  ) : (
+                    <button
+                      onClick={() => markPaid(o.id)}
+                      disabled={busy === o.id}
+                      className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold text-white"
+                    >
+                      {busy === o.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        "Enregistrer le paiement"
+                      )}
+                    </button>
+                  )}
                   <button
                     onClick={() => remove(o.id, o.reference)}
                     disabled={busy === o.id}

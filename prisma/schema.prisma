@@ -126,6 +126,8 @@ model Order {
   discount     Int         @default(0)
   promoCode    String?
   total        Int
+  paid         Boolean     @default(false)
+  paidAt       DateTime?
   driverId     String?
   driver       Driver?     @relation(fields: [driverId], references: [id], onDelete: SetNull)
   items        OrderItem[]

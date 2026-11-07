@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import OrdersManager from "@/components/admin/OrdersManager";
 import { SITE } from "@/lib/constants";
+import { receiptUrl } from "@/lib/receipt";
 import type { OrderStatus } from "@/components/admin/statusMeta";
 
 export const dynamic = "force-dynamic";
@@ -31,6 +32,8 @@ export default async function AdminOrdersPage() {
     total: o.total,
     createdAt: o.createdAt.toISOString(),
     driverId: o.driverId,
+    paid: o.paid,
+    receiptUrl: receiptUrl(o.reference),
     items: o.items.map((i) => ({
       id: i.id,
       productName: i.productName,

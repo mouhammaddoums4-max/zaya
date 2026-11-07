@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { sendSms } from "@/lib/sms";
 import { formatPrice } from "@/lib/format";
+import { receiptUrl } from "@/lib/receipt";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -11,6 +12,7 @@ const schema = z.object({
     .enum(["EN_ATTENTE", "CONFIRMEE", "EN_LIVRAISON", "LIVREE", "ANNULEE"])
     .optional(),
   driverId: z.string().optional().nullable(),
+  paid: z.boolean().optional(),
 });
 
 export async function PATCH(req: Request, { params }: Ctx) {
@@ -28,17 +30,36 @@ export async function PATCH(req: Request, { params }: Ctx) {
     return NextResponse.json({ error: "Données invalides" }, { status: 400 });
   }
 
-  const data: { status?: string; driverId?: string | null } = {};
+  const data: {
+    status?: string;
+    driverId?: string | null;
+    paid?: boolean;
+    paidAt?: Date | null;
+  } = {};
   if (parsed.data.status) data.status = parsed.data.status;
   const assigning =
     parsed.data.driverId !== undefined && parsed.data.driverId !== null;
   if (parsed.data.driverId !== undefined)
     data.driverId = parsed.data.driverId || null;
 
+  const markingPaid = parsed.data.paid === true;
+  if (parsed.data.paid !== undefined) {
+    data.paid = parsed.data.paid;
+    data.paidAt = parsed.data.paid ? new Date() : null;
+  }
+
   const order = await prisma.order.update({
     where: { id },
     data: data as never,
   });
+
+  // SMS au client avec le lien du reçu lors de l'enregistrement du paiement
+  if (markingPaid) {
+    await sendSms(
+      order.phone,
+      `ZAYA: Paiement recu pour la commande ${order.reference} (${formatPrice(order.total)}). Votre recu: ${receiptUrl(order.reference)} . Merci !`,
+    );
+  }
 
   // SMS au livreur lors de l'assignation
   if (assigning && parsed.data.driverId) {
