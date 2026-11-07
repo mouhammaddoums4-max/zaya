@@ -10,15 +10,18 @@ type Slide = { image: string; title: string; subtitle: string; cta: string; link
 type Ad = { image: string; link: string };
 
 export default function ContentManager({
+  initialLogo,
   initialSlides,
   initialBanners,
   initialAds,
 }: {
+  initialLogo: string | null;
   initialSlides: Slide[];
   initialBanners: Slide[];
   initialAds: Ad[];
 }) {
   const router = useRouter();
+  const [logo, setLogo] = useState<string>(initialLogo ?? "");
   const [slides, setSlides] = useState<Slide[]>(initialSlides);
   const [banners, setBanners] = useState<Slide[]>(initialBanners);
   const [ads, setAds] = useState<Ad[]>(initialAds);
@@ -31,6 +34,7 @@ export default function ContentManager({
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          logo: logo || null,
           slides: slides.filter((s) => s.image),
           banners: banners.filter((b) => b.image),
           squareAds: ads.filter((a) => a.image),
@@ -52,6 +56,26 @@ export default function ContentManager({
 
   return (
     <div className="space-y-8 pb-24">
+      {/* Logo du site */}
+      <section className="rounded-2xl bg-white p-5 shadow-card ring-1 ring-black/5">
+        <h2 className="mb-1 font-display font-bold">Logo du site</h2>
+        <p className="mb-4 text-xs text-ink-muted">
+          Affiché dans l'en-tête et le pied de page. Utilisez un PNG{" "}
+          <b>transparent</b> (de préférence clair/blanc) : il apparaît sur fond
+          sombre. Laissez vide pour le logo ZAYA par défaut.
+        </p>
+        <div className="max-w-xs">
+          <div className="rounded-xl bg-ink p-4">
+            <AdminImageUpload
+              value={logo}
+              onChange={setLogo}
+              aspect="banner"
+              hint="PNG transparent — fond sombre"
+            />
+          </div>
+        </div>
+      </section>
+
       {/* Carrousel */}
       <section className="rounded-2xl bg-white p-5 shadow-card ring-1 ring-black/5">
         <div className="mb-1 flex items-center justify-between">

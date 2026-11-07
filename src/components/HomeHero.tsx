@@ -3,7 +3,20 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, ChevronRight, ChevronLeft } from "lucide-react";
+import {
+  ArrowRight,
+  ChevronRight,
+  ChevronLeft,
+  ShieldCheck,
+  Zap,
+  Headphones,
+} from "lucide-react";
+
+const TRUST = [
+  { icon: ShieldCheck, title: "Paiement sécurisé", desc: "Payez à la livraison" },
+  { icon: Zap, title: "Rapidité", desc: "Livraison express" },
+  { icon: Headphones, title: "Assistance", desc: "7j/7 sur WhatsApp" },
+];
 import { CategoryIcon } from "./icons";
 import SmartImage from "./SmartImage";
 import type { CategoryData } from "@/lib/types";
@@ -30,6 +43,13 @@ const DEFAULT_SLIDES: Slide[] = [
     cta: "Découvrir",
     link: "/boutique",
     image: "/hero/hero-3.png",
+  },
+  {
+    title: "Livraison partout\nen Guinée",
+    subtitle: "Paiement à la livraison, en toute confiance.",
+    cta: "Commander maintenant",
+    link: "/boutique",
+    image: "/hero/hero-4.png",
   },
 ];
 
@@ -90,7 +110,7 @@ export default function HomeHero({
           onMouseEnter={() => (paused.current = true)}
           onMouseLeave={() => (paused.current = false)}
         >
-          <div className="relative h-[220px] w-full sm:h-[300px] lg:h-[360px]">
+          <div className="relative aspect-[1983/793] w-full">
             <AnimatePresence mode="popLayout" custom={dir}>
               <motion.div
                 key={index}
@@ -188,6 +208,28 @@ export default function HomeHero({
             )}
           </div>
         </div>
+      </div>
+
+      {/* Réassurance */}
+      <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-4">
+        {TRUST.map((f) => (
+          <div
+            key={f.title}
+            className="flex items-center gap-2 rounded-xl bg-white px-3 py-3 ring-1 ring-black/[0.06] sm:gap-3 sm:px-4"
+          >
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zaya-50 text-zaya sm:h-10 sm:w-10">
+              <f.icon className="h-5 w-5" />
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-xs font-semibold text-ink sm:text-sm">
+                {f.title}
+              </p>
+              <p className="truncate text-[11px] text-ink-muted sm:text-xs">
+                {f.desc}
+              </p>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

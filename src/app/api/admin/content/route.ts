@@ -19,6 +19,7 @@ export async function PUT(req: Request) {
   }
 
   const data = {
+    logo: parsed.data.logo ?? null,
     slides: parsed.data.slides,
     banners: parsed.data.banners,
     squareAds: parsed.data.squareAds,

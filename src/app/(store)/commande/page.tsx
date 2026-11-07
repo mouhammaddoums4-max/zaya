@@ -134,6 +134,9 @@ export default function CommandePage() {
             <p className="mb-4 text-sm text-ink-muted">
               Pas besoin de compte. Remplissez simplement ces informations, nous
               vous contactons pour confirmer. <strong>Paiement à la livraison.</strong>
+              <br />
+              📍 Après validation, vous pourrez <strong>partager votre localisation
+              par WhatsApp</strong> pour une livraison plus rapide.
             </p>
 
             <div className="space-y-4">

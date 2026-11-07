@@ -228,6 +228,7 @@ export type SquareAd = { image: string; link?: string };
 
 export type SiteSettings = {
   id: string;
+  logo: string | null;
   popupEnabled: boolean;
   popupImage: string | null;
   popupLink: string | null;
@@ -246,18 +247,37 @@ function parseArray<T>(value: unknown): T[] {
 }
 
 export async function getSettings(): Promise<SiteSettings> {
-  const s = await prisma.setting.findUnique({ where: { id: "main" } });
-  return {
+  const empty: SiteSettings = {
     id: "main",
-    popupEnabled: s?.popupEnabled ?? false,
-    popupImage: s?.popupImage ?? null,
-    popupLink: s?.popupLink ?? null,
-    popupTitle: s?.popupTitle ?? null,
-    announcement: s?.announcement ?? null,
-    slides: parseArray<Slide>(s?.slides),
-    banners: parseArray<Banner>(s?.banners),
-    squareAds: parseArray<SquareAd>(s?.squareAds),
+    logo: null,
+    popupEnabled: false,
+    popupImage: null,
+    popupLink: null,
+    popupTitle: null,
+    announcement: null,
+    slides: [],
+    banners: [],
+    squareAds: [],
   };
+  try {
+    const s = await prisma.setting.findUnique({ where: { id: "main" } });
+    if (!s) return empty;
+    return {
+      id: "main",
+      logo: s.logo ?? null,
+      popupEnabled: s.popupEnabled ?? false,
+      popupImage: s.popupImage ?? null,
+      popupLink: s.popupLink ?? null,
+      popupTitle: s.popupTitle ?? null,
+      announcement: s.announcement ?? null,
+      slides: parseArray<Slide>(s.slides),
+      banners: parseArray<Banner>(s.banners),
+      squareAds: parseArray<SquareAd>(s.squareAds),
+    };
+  } catch {
+    // Colonne/table manquante (schéma pas encore poussé) → valeurs par défaut
+    return empty;
+  }
 }
 
 export async function getStats() {

@@ -11,3 +11,4 @@ export const SITE = {
 };
 
 export const SESSION_COOKIE = "zaya_session";
+export const DRIVER_COOKIE = "zaya_driver";

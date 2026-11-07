@@ -45,9 +45,12 @@ function formatPhone(w: string) {
 
 export default function HeaderClient({
   categories,
+  logo,
 }: {
   categories: CategoryData[];
+  logo?: string | null;
 }) {
+  const logoSrc = logo || "/logo-zaya.png";
   const [mounted, setMounted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [catOpen, setCatOpen] = useState(false);
@@ -142,7 +145,7 @@ export default function HeaderClient({
 
           <Link href="/" className="flex shrink-0 items-center" aria-label="Accueil ZAYA">
             <Image
-              src="/logo-zaya.png"
+              src={logoSrc}
               alt="ZAYA"
               width={140}
               height={46}
@@ -356,7 +359,7 @@ export default function HeaderClient({
               className="fixed inset-y-0 left-0 z-[80] flex w-[86%] max-w-sm flex-col bg-white lg:hidden"
             >
               <div className="flex items-center justify-between bg-ink px-4 py-4">
-                <Image src="/logo-zaya.png" alt="ZAYA" width={110} height={36} className="logo-white h-7 w-auto" />
+                <Image src={logoSrc} alt="ZAYA" width={110} height={36} className="logo-white h-7 w-auto" />
                 <button onClick={() => setMenuOpen(false)} aria-label="Fermer" className="flex h-9 w-9 items-center justify-center rounded-lg text-white hover:bg-white/10">
                   <X className="h-5 w-5" />
                 </button>

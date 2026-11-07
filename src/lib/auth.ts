@@ -1,6 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
-import { SESSION_COOKIE } from "./constants";
+import { SESSION_COOKIE, DRIVER_COOKIE } from "./constants";
 
 const secretKey = process.env.AUTH_SECRET || "dev-insecure-secret-change-me";
 const encodedKey = new TextEncoder().encode(secretKey);
@@ -35,6 +35,47 @@ export async function getSession(): Promise<SessionPayload | null> {
   const store = await cookies();
   const token = store.get(SESSION_COOKIE)?.value;
   return verifySession(token);
+}
+
+// ---- Sessions LIVREUR ----
+export type DriverSession = {
+  role: "driver";
+  driverId: string;
+  name?: string;
+  iat?: number;
+  exp?: number;
+};
+
+export async function createDriverSession(
+  driverId: string,
+  name: string,
+): Promise<string> {
+  return new SignJWT({ role: "driver", driverId, name })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("30d")
+    .sign(encodedKey);
+}
+
+export async function verifyDriverSession(
+  token: string | undefined | null,
+): Promise<DriverSession | null> {
+  if (!token) return null;
+  try {
+    const { payload } = await jwtVerify(token, encodedKey, {
+      algorithms: ["HS256"],
+    });
+    if (payload.role !== "driver" || !payload.driverId) return null;
+    return payload as DriverSession;
+  } catch {
+    return null;
+  }
+}
+
+export async function getDriverSession(): Promise<DriverSession | null> {
+  const store = await cookies();
+  const token = store.get(DRIVER_COOKIE)?.value;
+  return verifyDriverSession(token);
 }
 
 /** Comparaison de mots de passe à temps constant (anti timing-attack). */

@@ -52,7 +52,7 @@ export default async function AdminClientsPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="font-display text-2xl font-bold">Carnet client</h1>
+        <h1 className="font-display text-2xl font-bold">CRM — Carnet client</h1>
         <p className="text-sm text-ink-muted">
           {clients.length} client(s) — regroupés par numéro
         </p>

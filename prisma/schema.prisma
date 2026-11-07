@@ -16,6 +16,7 @@ model MediaImage {
 
 model Setting {
   id           String   @id @default("main")
+  logo         String?
   popupEnabled Boolean  @default(false)
   popupImage   String?
   popupLink    String?
@@ -89,6 +90,16 @@ enum ProductCondition {
   RECONDITIONNE
 }
 
+model Driver {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String   @unique
+  pinHash   String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  orders    Order[]
+}
+
 model PromoCode {
   id        String       @id @default(cuid())
   code      String       @unique
@@ -115,12 +126,15 @@ model Order {
   discount     Int         @default(0)
   promoCode    String?
   total        Int
+  driverId     String?
+  driver       Driver?     @relation(fields: [driverId], references: [id], onDelete: SetNull)
   items        OrderItem[]
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
   @@index([status])
   @@index([createdAt])
+  @@index([driverId])
 }
 
 model OrderItem {

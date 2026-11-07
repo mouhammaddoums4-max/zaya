@@ -33,19 +33,40 @@ type Order = {
   deliveryFee: number;
   total: number;
   createdAt: string;
+  driverId: string | null;
   items: Item[];
 };
 
 export default function OrdersManager({
   orders,
   whatsapp,
+  drivers = [],
 }: {
   orders: Order[];
   whatsapp: string;
+  drivers?: { id: string; name: string }[];
 }) {
   const router = useRouter();
   const [openId, setOpenId] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+
+  const assignDriver = async (id: string, driverId: string) => {
+    setBusy(id);
+    try {
+      const res = await fetch(`/api/admin/orders/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ driverId: driverId || null }),
+      });
+      if (!res.ok) throw new Error("Erreur");
+      toast(driverId ? "Livreur assigné ✅ (SMS envoyé)" : "Livreur retiré");
+      router.refresh();
+    } catch {
+      toast("Erreur d'assignation", "error");
+    } finally {
+      setBusy(null);
+    }
+  };
 
   const changeStatus = async (id: string, status: OrderStatus) => {
     setBusy(id);
@@ -181,6 +202,20 @@ export default function OrdersManager({
                     {STATUS_ORDER.map((s) => (
                       <option key={s} value={s}>
                         {STATUS_META[s].label}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={o.driverId || ""}
+                    onChange={(e) => assignDriver(o.id, e.target.value)}
+                    disabled={busy === o.id}
+                    className="rounded-xl border border-black/10 bg-white px-3 py-2 text-sm font-medium outline-none focus:border-zaya"
+                    title="Assigner un livreur"
+                  >
+                    <option value="">🛵 Aucun livreur</option>
+                    {drivers.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.name}
                       </option>
                     ))}
                   </select>

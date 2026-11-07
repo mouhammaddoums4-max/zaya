@@ -79,6 +79,7 @@ export const settingsSchema = z.object({
 });
 
 export const contentSchema = z.object({
+  logo: z.string().max(500_000).nullish(),
   slides: z.array(slideSchema).max(10).default([]),
   banners: z.array(slideSchema).max(6).default([]),
   squareAds: z.array(squareAdSchema).max(12).default([]),
@@ -107,6 +108,20 @@ export const promoSchema = z.object({
     .optional()
     .nullable()
     .or(z.literal("").transform(() => null)),
+});
+
+export const driverSchema = z.object({
+  name: z.string().trim().min(2, "Nom requis").max(80),
+  phone: z
+    .string()
+    .trim()
+    .min(6, "Numéro invalide")
+    .max(20)
+    .regex(/^[0-9+\s().-]+$/, "Numéro invalide"),
+  pin: z
+    .string()
+    .trim()
+    .regex(/^[0-9]{4,6}$/, "Le code PIN doit contenir 4 à 6 chiffres"),
 });
 
 export const orderStatusSchema = z.object({

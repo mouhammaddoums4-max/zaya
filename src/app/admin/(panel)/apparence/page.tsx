@@ -31,6 +31,7 @@ export default async function AdminAppearancePage() {
         </p>
       </div>
       <ContentManager
+        initialLogo={s.logo}
         initialSlides={slides}
         initialBanners={banners}
         initialAds={ads}

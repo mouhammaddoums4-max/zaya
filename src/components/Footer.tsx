@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Facebook, Youtube, Phone, Mail, MapPin } from "lucide-react";
 import { SITE } from "@/lib/constants";
+import { getSettings } from "@/lib/data";
 import Newsletter from "./Newsletter";
 
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -21,6 +22,8 @@ function TikTokIcon({ className }: { className?: string }) {
 }
 
 export default async function Footer() {
+  const settings = await getSettings();
+  const logoSrc = settings.logo || "/logo-zaya.png";
   const socials = [
     { icon: Facebook, href: "#", label: "Facebook", color: "bg-[#1877F2]" },
     { icon: Youtube, href: "#", label: "YouTube", color: "bg-[#FF0000]" },
@@ -42,7 +45,7 @@ export default async function Footer() {
 
       <div className="container-zaya relative grid gap-8 py-12 md:grid-cols-4">
         <div>
-          <Image src="/logo-zaya.png" alt="ZAYA" width={140} height={46} className="logo-white h-9 w-auto" />
+          <Image src={logoSrc} alt="ZAYA" width={140} height={46} className="logo-white h-9 w-auto" />
           <p className="mt-3 text-sm text-white/60">Achetez malin. Vendez facilement.</p>
         </div>
 
