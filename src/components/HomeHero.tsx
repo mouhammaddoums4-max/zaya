@@ -84,7 +84,7 @@ export default function HomeHero({
 
   return (
     <div className="container-zaya pt-4">
-      <div className="flex gap-4">
+      <div className="flex items-start gap-4">
         {/* Sidebar catégories (desktop) */}
         <aside className="hidden w-64 shrink-0 lg:block">
           <div className="overflow-hidden rounded-xl bg-white ring-1 ring-black/[0.06]">

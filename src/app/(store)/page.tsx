@@ -6,6 +6,7 @@ import CategoriesShowcase from "@/components/CategoriesShowcase";
 import PromoBanners from "@/components/PromoBanners";
 import FlashDeals from "@/components/FlashDeals";
 import ProductGridWithAds from "@/components/ProductGridWithAds";
+import RecentlyViewed from "@/components/RecentlyViewed";
 import {
   getCategories,
   getFlashDeals,
@@ -87,6 +88,8 @@ export default async function HomePage() {
             <ProductGridWithAds products={fresh} ads={settings.squareAds} />
           </section>
         )}
+
+        <RecentlyViewed title="Recommandé pour vous" />
       </div>
     </>
   );

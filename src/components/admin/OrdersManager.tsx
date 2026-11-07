@@ -248,14 +248,24 @@ export default function OrdersManager({
                     <Phone className="h-4 w-4" /> WhatsApp
                   </a>
                   {o.paid ? (
-                    <a
-                      href={o.receiptUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-600"
-                    >
-                      ✓ Payé · Voir le reçu
-                    </a>
+                    <>
+                      <a
+                        href={o.receiptUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-600"
+                      >
+                        ✓ Reçu
+                      </a>
+                      <a
+                        href={`https://wa.me/${o.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`Bonjour ${o.customerName}, voici le reçu de votre commande ${o.reference} chez ZAYA : ${o.receiptUrl}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 rounded-xl bg-[#25D366] px-3 py-2 text-sm font-semibold text-white"
+                      >
+                        Envoyer le reçu (WhatsApp)
+                      </a>
+                    </>
                   ) : (
                     <button
                       onClick={() => markPaid(o.id)}

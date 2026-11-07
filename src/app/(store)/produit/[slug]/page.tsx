@@ -5,7 +5,13 @@ import { ChevronRight } from "lucide-react";
 import ProductDetail from "@/components/ProductDetail";
 import ProductGrid from "@/components/ProductGrid";
 import SectionHeader from "@/components/SectionHeader";
-import { getProductBySlug, getRelatedProducts } from "@/lib/data";
+import RecentlyViewedTracker from "@/components/RecentlyViewedTracker";
+import RecentlyViewed from "@/components/RecentlyViewed";
+import {
+  getProductBySlug,
+  getRelatedProducts,
+  getFrequentlyBoughtTogether,
+} from "@/lib/data";
 import { SITE } from "@/lib/constants";
 import { formatPrice } from "@/lib/format";
 
@@ -52,8 +58,27 @@ export default async function ProductPage({ params }: Props) {
   const product = await getProductBySlug(slug);
   if (!product || !product.active) notFound();
 
-  const related = await getRelatedProducts(product.categoryId, product.id, 10);
+  const [related, fbt] = await Promise.all([
+    getRelatedProducts(product.categoryId, product.id, 10),
+    getFrequentlyBoughtTogether(product.id, 6),
+  ]);
   const url = `${SITE.url}/produit/${product.slug}`;
+
+  const cardData = {
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
+    price: product.price,
+    compareAtPrice: product.compareAtPrice,
+    images: product.images,
+    rating: product.rating,
+    reviewsCount: product.reviewsCount,
+    sold: product.sold,
+    stock: product.stock,
+    brand: product.brand,
+    isFlashDeal: product.isFlashDeal,
+    condition: product.condition,
+  };
 
   return (
     <div className="container-zaya py-5 sm:py-8">
@@ -94,12 +119,25 @@ export default async function ProductPage({ params }: Props) {
         url={url}
       />
 
+      <RecentlyViewedTracker product={cardData} />
+
+      {fbt.length > 0 && (
+        <div className="mt-14">
+          <SectionHeader title="Souvent achetés ensemble" />
+          <ProductGrid products={fbt} />
+        </div>
+      )}
+
       {related.length > 0 && (
         <div className="mt-14">
           <SectionHeader title="Produits similaires" />
           <ProductGrid products={related} />
         </div>
       )}
+
+      <div className="mt-14">
+        <RecentlyViewed excludeId={product.id} />
+      </div>
 
       {/* JSON-LD pour le SEO / partage riche */}
       <script

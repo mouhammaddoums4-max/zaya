@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Package,
+  Boxes,
   FolderTree,
   ShoppingCart,
   Ticket,
@@ -21,6 +22,7 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard, exact: true },
   { href: "/admin/produits", label: "Produits", icon: Package },
+  { href: "/admin/stock", label: "Stock", icon: Boxes },
   { href: "/admin/categories", label: "Catégories", icon: FolderTree },
   { href: "/admin/commandes", label: "Commandes", icon: ShoppingCart },
   { href: "/admin/clients", label: "CRM", icon: Users },

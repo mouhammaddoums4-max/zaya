@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Image as ImageIcon } from "lucide-react";
-import SmartImage from "@/components/SmartImage";
+import { Loader2 } from "lucide-react";
+import AdminImageUpload from "./AdminImageUpload";
 import { toast } from "@/components/Toaster";
 
 type Settings = {
@@ -53,8 +53,8 @@ export default function SettingsForm({ initial }: { initial: Settings }) {
   const label = "mb-1.5 block text-sm font-medium text-ink";
 
   return (
-    <form onSubmit={submit} className="grid gap-6 lg:grid-cols-3">
-      <div className="space-y-5 lg:col-span-2">
+    <form onSubmit={submit} className="max-w-3xl">
+      <div className="space-y-5">
         <div className="rounded-2xl bg-white p-5 shadow-card ring-1 ring-black/5">
           <h2 className="mb-1 font-display font-bold">Popup publicitaire</h2>
           <p className="mb-4 text-xs text-ink-muted">
@@ -72,14 +72,14 @@ export default function SettingsForm({ initial }: { initial: Settings }) {
             />
           </label>
 
-          <div className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-[220px_1fr]">
             <div>
-              <label className={label}>URL de l'image *</label>
-              <input
+              <label className={label}>Image du popup *</label>
+              <AdminImageUpload
                 value={form.popupImage}
-                onChange={(e) => set("popupImage", e.target.value)}
-                className={field}
-                placeholder="https://exemple.com/promo.jpg"
+                onChange={(url) => set("popupImage", url)}
+                aspect="portrait"
+                hint="Format portrait ≈ 3:4"
               />
             </div>
             <div>
@@ -90,15 +90,9 @@ export default function SettingsForm({ initial }: { initial: Settings }) {
                 className={field}
                 placeholder="/boutique?filtre=promo"
               />
-            </div>
-            <div>
-              <label className={label}>Titre sous l'image (optionnel)</label>
-              <input
-                value={form.popupTitle}
-                onChange={(e) => set("popupTitle", e.target.value)}
-                className={field}
-                placeholder="Grande promo de la semaine !"
-              />
+              <p className="mt-1 text-xs text-ink-muted">
+                Où l'utilisateur est redirigé en cliquant sur l'image.
+              </p>
             </div>
           </div>
         </div>
@@ -119,32 +113,6 @@ export default function SettingsForm({ initial }: { initial: Settings }) {
         <button type="submit" disabled={loading} className="btn-primary">
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Enregistrer"}
         </button>
-      </div>
-
-      {/* Aperçu */}
-      <div>
-        <div className="sticky top-6 rounded-2xl bg-white p-5 shadow-card ring-1 ring-black/5">
-          <h3 className="mb-3 font-display font-bold">Aperçu du popup</h3>
-          {form.popupEnabled && form.popupImage ? (
-            <div className="overflow-hidden rounded-xl ring-1 ring-black/5">
-              <div className="relative aspect-[3/4] w-full bg-neutral-50">
-                <SmartImage src={form.popupImage} alt="Aperçu" fill sizes="300px" className="object-cover" />
-              </div>
-              {form.popupTitle && (
-                <div className="p-3 text-center">
-                  <p className="font-display font-bold">{form.popupTitle}</p>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-black/10 py-10 text-ink-muted">
-              <ImageIcon className="h-8 w-8" />
-              <p className="text-center text-xs">
-                {form.popupEnabled ? "Ajoutez une URL d'image" : "Popup désactivé"}
-              </p>
-            </div>
-          )}
-        </div>
       </div>
     </form>
   );

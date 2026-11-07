@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Star, ShoppingCart, Heart } from "lucide-react";
+import { Star, ShoppingCart, Heart, Eye } from "lucide-react";
 import { useCart } from "@/store/cart";
 import { useWishlist } from "@/store/wishlist";
+import { useQuickView } from "@/store/quickview";
 import { toast } from "./Toaster";
 import SmartImage from "./SmartImage";
 import { formatPrice, discountPercent } from "@/lib/format";
@@ -21,6 +22,7 @@ export default function ProductCard({
   const add = useCart((s) => s.add);
   const toggleWish = useWishlist((s) => s.toggle);
   const wishHas = useWishlist((s) => s.has);
+  const openQuickView = useQuickView((s) => s.open);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -92,6 +94,17 @@ export default function ProductCard({
             }`}
           >
             <Heart className={`h-4 w-4 ${isWished ? "fill-red-500" : ""}`} />
+          </button>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              openQuickView(product);
+            }}
+            aria-label="Aperçu rapide"
+            className="absolute right-2 top-11 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-ink-muted opacity-0 shadow-sm backdrop-blur transition hover:text-zaya group-hover:opacity-100"
+          >
+            <Eye className="h-4 w-4" />
           </button>
           {outOfStock && (
             <div className="absolute inset-0 flex items-center justify-center bg-white/70">

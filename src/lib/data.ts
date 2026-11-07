@@ -163,6 +163,47 @@ export async function getCategoryBySlug(slug: string) {
   return prisma.category.findUnique({ where: { slug } });
 }
 
+/** « Souvent achetés ensemble » : produits co-commandés le plus fréquemment. */
+export async function getFrequentlyBoughtTogether(
+  productId: string,
+  take = 6,
+): Promise<ProductCardData[]> {
+  const myItems = await prisma.orderItem.findMany({
+    where: { productId },
+    select: { orderId: true },
+    take: 500,
+  });
+  const orderIds = myItems.map((i) => i.orderId);
+  if (orderIds.length === 0) return [];
+
+  const coItems = await prisma.orderItem.findMany({
+    where: { orderId: { in: orderIds }, productId: { not: productId } },
+    select: { productId: true },
+    take: 1000,
+  });
+
+  const counts = new Map<string, number>();
+  for (const it of coItems) {
+    if (it.productId) counts.set(it.productId, (counts.get(it.productId) || 0) + 1);
+  }
+  const topIds = [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, take)
+    .map(([id]) => id);
+  if (topIds.length === 0) return [];
+
+  const products = await prisma.product.findMany({
+    where: { id: { in: topIds }, active: true },
+    select: productSelect,
+  });
+  // conserve l'ordre de fréquence
+  const byId = new Map(products.map((p) => [p.id, p]));
+  return topIds
+    .map((id) => byId.get(id))
+    .filter((p): p is NonNullable<typeof p> => Boolean(p))
+    .map(toCard);
+}
+
 export type ProductQuery = {
   q?: string;
   category?: string;
