@@ -13,12 +13,6 @@ function csvCell(v: string) {
   return `"${s}"`;
 }
 
-const CONDITION_MAP: Record<string, string> = {
-  NEUF: "new",
-  OCCASION: "used",
-  RECONDITIONNE: "refurbished",
-};
-
 /**
  * Flux produit compatible Facebook / Instagram Shopping & Google Merchant.
  * À importer dans Facebook Commerce Manager (catalogue > source de données > flux planifié).
@@ -59,7 +53,7 @@ export async function GET() {
       p.name,
       desc,
       p.stock > 0 ? "in stock" : "out of stock",
-      CONDITION_MAP[p.condition] || "new",
+      "new",
       `${p.price} GNF`,
       `${base}/produit/${p.slug}`,
       imageAbs,
