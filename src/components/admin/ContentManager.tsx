@@ -190,7 +190,7 @@ export default function ContentManager({
       </section>
 
       {/* Barre d'enregistrement */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-black/5 bg-white/95 p-3 backdrop-blur lg:left-64">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-black/5 bg-white/95 p-3 pb-24 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-end gap-3 px-2">
           <button onClick={save} disabled={loading} className="btn-primary">
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Enregistrer le contenu"}
