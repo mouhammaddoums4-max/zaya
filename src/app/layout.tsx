@@ -1,20 +1,23 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Sora } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { SITE } from "@/lib/constants";
 import { Toaster } from "@/components/Toaster";
 
-const inter = Inter({
-  subsets: ["latin"],
+// Fonts self-hosted (next/font/local) to avoid build-time fetches to
+// Google Fonts, which fail intermittently on Vercel.
+const inter = localFont({
+  src: "./fonts/Inter-latin.woff2",
   variable: "--font-sans",
   display: "swap",
+  weight: "100 900",
 });
 
-const sora = Sora({
-  subsets: ["latin"],
+const sora = localFont({
+  src: "./fonts/Sora-latin.woff2",
   variable: "--font-display",
   display: "swap",
-  weight: ["500", "600", "700", "800"],
+  weight: "100 800",
 });
 
 export const metadata: Metadata = {
