@@ -3,7 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
 import {
   LayoutDashboard,
   Package,
@@ -13,8 +12,6 @@ import {
   Settings,
   LogOut,
   ExternalLink,
-  Menu,
-  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +24,54 @@ const NAV = [
   { href: "/admin/parametres", label: "Paramètres", icon: Settings },
 ];
 
+type DockItemProps = {
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  active?: boolean;
+  badge?: number;
+  tone?: "default" | "danger";
+};
+
+/** Bouton du dock : icône + label flottant au survol. */
+function DockButton({
+  label,
+  icon: Icon,
+  active,
+  badge,
+  tone = "default",
+}: DockItemProps) {
+  return (
+    <span className="group relative flex flex-col items-center">
+      {/* Label flottant */}
+      <span
+        className="pointer-events-none absolute -top-11 whitespace-nowrap rounded-lg bg-ink px-2.5 py-1 text-xs font-medium text-white opacity-0 shadow-lg transition-all duration-200 group-hover:-top-10 group-hover:opacity-100"
+      >
+        {label}
+        <span className="absolute left-1/2 top-full h-2 w-2 -translate-x-1/2 -translate-y-1 rotate-45 bg-ink" />
+      </span>
+
+      {/* Icône */}
+      <span
+        className={cn(
+          "relative flex h-11 w-11 items-center justify-center rounded-2xl transition-all duration-200 group-hover:-translate-y-1 group-hover:scale-110",
+          active
+            ? "bg-zaya text-white shadow-lg shadow-zaya/30"
+            : tone === "danger"
+              ? "text-red-500 hover:bg-red-500/10"
+              : "text-ink/60 hover:bg-black/5 hover:text-ink",
+        )}
+      >
+        <Icon className="h-5 w-5" />
+        {badge && badge > 0 ? (
+          <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-zaya px-1 text-[10px] font-bold text-white ring-2 ring-white">
+            {badge > 99 ? "99+" : badge}
+          </span>
+        ) : null}
+      </span>
+    </span>
+  );
+}
+
 export default function AdminShell({
   children,
   pendingCount = 0,
@@ -36,7 +81,6 @@ export default function AdminShell({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [open, setOpen] = useState(false);
 
   const logout = async () => {
     await fetch("/api/admin/logout", { method: "POST" });
@@ -47,115 +91,63 @@ export default function AdminShell({
   const isActive = (href: string, exact?: boolean) =>
     exact ? pathname === href : pathname.startsWith(href);
 
-  const SidebarContent = (
-    <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between px-5 py-5">
+  return (
+    <div className="min-h-screen bg-neutral-100">
+      {/* Topbar légère (branding) */}
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-black/5 bg-white/80 px-4 py-3 backdrop-blur sm:px-6">
         <Link href="/admin" className="flex items-center">
           <Image
             src="/logo-zaya.png"
             alt="ZAYA"
-            width={120}
-            height={40}
-            className="logo-white h-8 w-auto"
+            width={100}
+            height={34}
+            className="h-7 w-auto"
           />
           <span className="ml-2 rounded bg-zaya px-1.5 py-0.5 text-[10px] font-bold text-white">
             ADMIN
           </span>
         </Link>
-        <button
-          onClick={() => setOpen(false)}
-          className="text-white/70 lg:hidden"
-          aria-label="Fermer"
-        >
-          <X className="h-5 w-5" />
-        </button>
-      </div>
+      </header>
 
-      <nav className="flex-1 space-y-1 px-3">
-        {NAV.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            onClick={() => setOpen(false)}
-            className={cn(
-              "flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
-              isActive(item.href, item.exact)
-                ? "bg-zaya text-white"
-                : "text-white/70 hover:bg-white/10 hover:text-white",
-            )}
+      {/* Contenu — espace réservé en bas pour le dock */}
+      <main className="p-4 pb-32 sm:p-6 sm:pb-32 lg:p-8 lg:pb-32">
+        {children}
+      </main>
+
+      {/* Dock flottant centré */}
+      <nav
+        aria-label="Navigation admin"
+        className="fixed inset-x-0 bottom-5 z-50 flex justify-center px-3"
+      >
+        <div className="flex max-w-full items-center gap-1 overflow-x-auto rounded-[1.75rem] border border-black/5 bg-white/85 p-2 shadow-2xl shadow-black/15 backdrop-blur-xl">
+          {NAV.map((item) => (
+            <Link key={item.href} href={item.href} aria-label={item.label}>
+              <DockButton
+                label={item.label}
+                icon={item.icon}
+                active={isActive(item.href, item.exact)}
+                badge={item.href === "/admin/commandes" ? pendingCount : undefined}
+              />
+            </Link>
+          ))}
+
+          {/* Séparateur */}
+          <span className="mx-1 h-8 w-px shrink-0 bg-black/10" />
+
+          <a
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Voir le site"
           >
-            <span className="flex items-center gap-3">
-              <item.icon className="h-5 w-5" />
-              {item.label}
-            </span>
-            {item.href === "/admin/commandes" && pendingCount > 0 && (
-              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-1 text-[11px] font-bold text-zaya">
-                {pendingCount}
-              </span>
-            )}
-          </Link>
-        ))}
-      </nav>
+            <DockButton label="Voir le site" icon={ExternalLink} />
+          </a>
 
-      <div className="space-y-1 border-t border-white/10 p-3">
-        <a
-          href="/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
-        >
-          <ExternalLink className="h-5 w-5" />
-          Voir le site
-        </a>
-        <button
-          onClick={logout}
-          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-300 transition-colors hover:bg-red-500/10"
-        >
-          <LogOut className="h-5 w-5" />
-          Déconnexion
-        </button>
-      </div>
-    </div>
-  );
-
-  return (
-    <div className="min-h-screen bg-neutral-100">
-      {/* Sidebar desktop */}
-      <aside className="fixed inset-y-0 left-0 hidden w-64 bg-ink lg:block">
-        {SidebarContent}
-      </aside>
-
-      {/* Sidebar mobile */}
-      {open && (
-        <>
-          <div
-            onClick={() => setOpen(false)}
-            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-          />
-          <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-ink lg:hidden">
-            {SidebarContent}
-          </aside>
-        </>
-      )}
-
-      {/* Contenu */}
-      <div className="lg:pl-64">
-        {/* Topbar mobile */}
-        <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-black/5 bg-white px-4 py-3 lg:hidden">
-          <button onClick={() => setOpen(true)} aria-label="Menu">
-            <Menu className="h-6 w-6" />
+          <button onClick={logout} aria-label="Déconnexion">
+            <DockButton label="Déconnexion" icon={LogOut} tone="danger" />
           </button>
-          <Image
-            src="/logo-zaya.png"
-            alt="ZAYA"
-            width={90}
-            height={30}
-            className="h-7 w-auto"
-          />
         </div>
-
-        <div className="p-4 sm:p-6 lg:p-8">{children}</div>
-      </div>
+      </nav>
     </div>
   );
 }
