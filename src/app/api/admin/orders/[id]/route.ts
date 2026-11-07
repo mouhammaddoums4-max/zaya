@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { sendSms } from "@/lib/sms";
 import { formatPrice } from "@/lib/format";
 import { receiptUrl } from "@/lib/receipt";
+import { SITE } from "@/lib/constants";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -69,7 +70,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
     if (driver) {
       await sendSms(
         driver.phone,
-        `ZAYA Livraison: commande ${order.reference} pour ${order.customerName} (${order.phone}). Lieu: ${order.location}. Montant a encaisser: ${formatPrice(order.total)}. Connectez-vous a l'espace livreur.`,
+        `ZAYA Livraison: commande ${order.reference} pour ${order.customerName} (${order.phone}). Lieu: ${order.location}. A encaisser: ${formatPrice(order.total)}. Vos livraisons: ${SITE.url.replace(/\/$/, "")}/livreur`,
       );
     }
   }

@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { SITE } from "@/lib/constants";
 import { Toaster } from "@/components/Toaster";
+import PwaProvider from "@/components/PwaProvider";
 
 // Fonts self-hosted (next/font/local) to avoid build-time fetches to
 // Google Fonts, which fail intermittently on Vercel.
@@ -39,6 +40,14 @@ export const metadata: Metadata = {
     "GNF",
   ],
   authors: [{ name: "ZAYA" }],
+  appleWebApp: {
+    capable: true,
+    title: "ZAYA",
+    statusBarStyle: "black-translucent",
+  },
+  icons: {
+    apple: "/icons/icon-192.png",
+  },
   openGraph: {
     type: "website",
     locale: "fr_FR",
@@ -72,6 +81,7 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         {children}
         <Toaster />
+        <PwaProvider />
       </body>
     </html>
   );

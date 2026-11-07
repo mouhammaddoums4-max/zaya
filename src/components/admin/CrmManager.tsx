@@ -13,8 +13,14 @@ import {
   Crown,
   Repeat,
   UserPlus,
+  Download,
+  Send,
+  MessageSquare,
+  Loader2,
+  X,
 } from "lucide-react";
 import { formatPrice } from "@/lib/format";
+import { toast } from "@/components/Toaster";
 import { STATUS_META, type OrderStatus } from "./statusMeta";
 import { cn } from "@/lib/utils";
 
@@ -70,6 +76,40 @@ export default function CrmManager({ clients }: { clients: CrmClient[] }) {
   const [segment, setSegment] = useState<"TOUS" | Segment>("TOUS");
   const [sort, setSort] = useState<SortKey>("spent");
   const [open, setOpen] = useState<string | null>(null);
+
+  // SMS promo
+  const [smsOpen, setSmsOpen] = useState(false);
+  const [smsMsg, setSmsMsg] = useState("");
+  const [smsSeg, setSmsSeg] = useState<"TOUS" | Segment>("TOUS");
+  const [smsLoading, setSmsLoading] = useState(false);
+
+  const sendSmsPromo = async () => {
+    if (!smsMsg.trim()) return;
+    setSmsLoading(true);
+    try {
+      const res = await fetch("/api/admin/sms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: smsMsg.trim(), segment: smsSeg }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Envoi échoué");
+      if (data.configured) {
+        toast(`SMS envoyé à ${data.recipients} client(s) ✅`);
+      } else {
+        toast(
+          `${data.recipients} destinataire(s) — SMS non configuré (Nimba)`,
+          "error",
+        );
+      }
+      setSmsMsg("");
+      setSmsOpen(false);
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Erreur", "error");
+    } finally {
+      setSmsLoading(false);
+    }
+  };
 
   const enriched = useMemo(
     () => clients.map((c) => ({ ...c, segment: segmentOf(c) })),
@@ -134,12 +174,101 @@ export default function CrmManager({ clients }: { clients: CrmClient[] }) {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="font-display text-2xl font-bold">CRM — Clients</h1>
-        <p className="text-sm text-ink-muted">
-          Fiches clients, segments et historique d&apos;achat (regroupés par numéro)
-        </p>
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-bold">CRM — Clients</h1>
+          <p className="text-sm text-ink-muted">
+            Fiches clients, segments et historique d&apos;achat (regroupés par numéro)
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <a
+            href="/api/admin/crm/export"
+            className="flex items-center gap-1.5 rounded-lg bg-white px-3 py-2 text-sm font-semibold ring-1 ring-black/10 transition hover:text-zaya"
+          >
+            <Download className="h-4 w-4" /> Exporter (Excel)
+          </a>
+          <button
+            onClick={() => setSmsOpen((v) => !v)}
+            className="flex items-center gap-1.5 rounded-lg bg-zaya px-3 py-2 text-sm font-semibold text-white transition hover:bg-zaya-600"
+          >
+            <MessageSquare className="h-4 w-4" /> SMS promo
+          </button>
+        </div>
       </div>
+
+      {/* Composeur SMS promotionnel */}
+      {smsOpen && (
+        <div className="mb-6 rounded-2xl bg-white p-5 shadow-card ring-1 ring-black/5">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="flex items-center gap-2 font-display font-bold">
+              <MessageSquare className="h-5 w-5 text-zaya" /> SMS promotionnel
+            </h2>
+            <button
+              onClick={() => setSmsOpen(false)}
+              className="text-ink-muted hover:text-ink"
+              aria-label="Fermer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-[1fr_200px]">
+            <div>
+              <textarea
+                value={smsMsg}
+                onChange={(e) => setSmsMsg(e.target.value)}
+                rows={4}
+                maxLength={480}
+                placeholder="Ex. ZAYA : -20% ce week-end sur toute la boutique ! Commandez sur zayamarket.store"
+                className="w-full resize-none rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm outline-none focus:border-zaya focus:ring-2 focus:ring-zaya/20"
+              />
+              <p className="mt-1 text-right text-xs text-ink-muted">
+                {smsMsg.length}/480
+              </p>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="mb-1 block text-xs font-medium text-ink-muted">
+                  Destinataires
+                </label>
+                <select
+                  value={smsSeg}
+                  onChange={(e) =>
+                    setSmsSeg(e.target.value as "TOUS" | Segment)
+                  }
+                  className="w-full rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm outline-none focus:border-zaya"
+                >
+                  <option value="TOUS">Tous ({enriched.length})</option>
+                  <option value="VIP">VIP ({segmentCounts.VIP})</option>
+                  <option value="RECURRENT">
+                    Récurrents ({segmentCounts.RECURRENT})
+                  </option>
+                  <option value="NOUVEAU">
+                    Nouveaux ({segmentCounts.NOUVEAU})
+                  </option>
+                </select>
+              </div>
+              <button
+                onClick={sendSmsPromo}
+                disabled={smsLoading || !smsMsg.trim()}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-zaya px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zaya-600 disabled:opacity-60"
+              >
+                {smsLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <>
+                    <Send className="h-4 w-4" /> Envoyer
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+          <p className="mt-3 text-xs text-ink-muted">
+            Envoi via Nimba SMS. Nécessite les variables NIMBA_SERVICE_ID /
+            NIMBA_SECRET_TOKEN côté serveur.
+          </p>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
