@@ -62,6 +62,24 @@ enum OrderStatus {
   ANNULEE
 }
 
+enum DiscountType {
+  PERCENT
+  FIXED
+}
+
+model PromoCode {
+  id        String       @id @default(cuid())
+  code      String       @unique
+  type      DiscountType @default(PERCENT)
+  value     Int // pourcentage (1-100) ou montant fixe en FG
+  minOrder  Int          @default(0)
+  maxUses   Int? // null = illimité
+  used      Int          @default(0)
+  active    Boolean      @default(true)
+  expiresAt DateTime?
+  createdAt DateTime     @default(now())
+}
+
 model Order {
   id           String      @id @default(cuid())
   reference    String      @unique
@@ -72,6 +90,8 @@ model Order {
   status       OrderStatus @default(EN_ATTENTE)
   subtotal     Int
   deliveryFee  Int         @default(0)
+  discount     Int         @default(0)
+  promoCode    String?
   total        Int
   items        OrderItem[]
   createdAt    DateTime    @default(now())

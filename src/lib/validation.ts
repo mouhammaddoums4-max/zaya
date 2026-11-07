@@ -59,6 +59,31 @@ export const settingsSchema = z.object({
   announcement: emptyToNull,
 });
 
+export const promoSchema = z.object({
+  code: z
+    .string()
+    .trim()
+    .min(2, "Code requis")
+    .max(40)
+    .transform((v) => v.toUpperCase().replace(/\s+/g, "")),
+  type: z.enum(["PERCENT", "FIXED"]).default("PERCENT"),
+  value: z.coerce.number().int().min(1, "Valeur invalide"),
+  minOrder: z.coerce.number().int().min(0).optional().default(0),
+  maxUses: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .optional()
+    .nullable()
+    .or(z.literal("").transform(() => null)),
+  active: z.boolean().optional().default(true),
+  expiresAt: z
+    .string()
+    .optional()
+    .nullable()
+    .or(z.literal("").transform(() => null)),
+});
+
 export const orderStatusSchema = z.object({
   status: z.enum([
     "EN_ATTENTE",

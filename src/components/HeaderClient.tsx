@@ -32,9 +32,9 @@ import { SITE } from "@/lib/constants";
 
 const NAV = [
   { href: "/", label: "Accueil", icon: Home, exact: true },
+  { href: "/boutique", label: "Boutique", icon: Store },
   { href: "/boutique?filtre=promo", label: "Promotions", icon: Flame },
   { href: "/boutique?filtre=flash", label: "Ventes Flash", icon: Zap },
-  { href: "/admin", label: "Espace Vendeur", icon: Store },
   { href: "/a-propos", label: "À propos", icon: Info },
 ];
 
@@ -189,9 +189,6 @@ export default function HeaderClient({
                     </Link>
                     <Link href="/panier" className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-zaya-50">
                       <ShoppingCart className="h-4 w-4 text-zaya" /> Mon panier
-                    </Link>
-                    <Link href="/admin" className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-zaya-50">
-                      <Store className="h-4 w-4 text-zaya" /> Espace Vendeur
                     </Link>
                     <Link href="/a-propos" className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-zaya-50">
                       <Info className="h-4 w-4 text-zaya" /> À propos

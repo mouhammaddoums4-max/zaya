@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { orderReference } from "@/lib/utils";
 import { SITE } from "@/lib/constants";
+import { validatePromo } from "@/lib/promo";
 
 const schema = z.object({
   customerName: z.string().trim().min(2, "Nom requis").max(80),
@@ -14,6 +15,7 @@ const schema = z.object({
     .regex(/^[0-9+\s().-]+$/, "Numéro invalide"),
   location: z.string().trim().min(2, "Lieu de livraison requis").max(160),
   note: z.string().trim().max(500).optional().or(z.literal("")),
+  promoCode: z.string().trim().max(40).optional().or(z.literal("")),
   items: z
     .array(
       z.object({
@@ -81,7 +83,19 @@ export async function POST(req: Request) {
   const subtotal = lineItems.reduce((s, i) => s + i.price * i.quantity, 0);
   const deliveryFee =
     subtotal >= SITE.freeDeliveryThreshold ? 0 : SITE.deliveryFee;
-  const total = subtotal + deliveryFee;
+
+  // Code promo (revalidé côté serveur, jamais depuis le client)
+  let discount = 0;
+  let appliedCode: string | null = null;
+  if (data.promoCode) {
+    const promo = await validatePromo(data.promoCode, subtotal);
+    if (promo.ok) {
+      discount = promo.discount;
+      appliedCode = promo.code;
+    }
+  }
+
+  const total = Math.max(0, subtotal - discount) + deliveryFee;
 
   const order = await prisma.order.create({
     data: {
@@ -92,10 +106,22 @@ export async function POST(req: Request) {
       note: data.note || null,
       subtotal,
       deliveryFee,
+      discount,
+      promoCode: appliedCode,
       total,
       items: { create: lineItems },
     },
   });
+
+  // Incrémente le compteur d'utilisation du code
+  if (appliedCode) {
+    await prisma.promoCode
+      .update({
+        where: { code: appliedCode },
+        data: { used: { increment: 1 } },
+      })
+      .catch(() => null);
+  }
 
   return NextResponse.json({
     ok: true,

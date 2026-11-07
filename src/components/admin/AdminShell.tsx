@@ -9,6 +9,7 @@ import {
   Package,
   FolderTree,
   ShoppingCart,
+  Ticket,
   Settings,
   LogOut,
   ExternalLink,
@@ -22,6 +23,7 @@ const NAV = [
   { href: "/admin/produits", label: "Produits", icon: Package },
   { href: "/admin/categories", label: "Catégories", icon: FolderTree },
   { href: "/admin/commandes", label: "Commandes", icon: ShoppingCart },
+  { href: "/admin/codes", label: "Codes promo", icon: Ticket },
   { href: "/admin/parametres", label: "Paramètres", icon: Settings },
 ];
 

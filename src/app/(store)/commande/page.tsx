@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User, Phone, MapPin, MessageSquare, Loader2, ShieldCheck } from "lucide-react";
+import { User, Phone, MapPin, MessageSquare, Loader2, ShieldCheck, Tag, Check, X } from "lucide-react";
 import { useCart } from "@/store/cart";
 import { formatPrice } from "@/lib/format";
 import SmartImage from "@/components/SmartImage";
@@ -23,11 +23,53 @@ export default function CommandePage() {
     note: "",
   });
 
+  // Code promo
+  const [promoInput, setPromoInput] = useState("");
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [promo, setPromo] = useState<{
+    code: string;
+    discount: number;
+    label: string;
+  } | null>(null);
+  const [promoError, setPromoError] = useState("");
+
   useEffect(() => setMounted(true), []);
+
+  const applyPromo = async () => {
+    if (!promoInput.trim()) return;
+    setPromoLoading(true);
+    setPromoError("");
+    try {
+      const res = await fetch("/api/promo/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: promoInput, subtotal }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setPromo({ code: data.code, discount: data.discount, label: data.label });
+        toast("Code promo appliqué 🎉");
+      } else {
+        setPromo(null);
+        setPromoError(data.error || "Code invalide");
+      }
+    } catch {
+      setPromoError("Erreur de validation");
+    } finally {
+      setPromoLoading(false);
+    }
+  };
+
+  const removePromo = () => {
+    setPromo(null);
+    setPromoInput("");
+    setPromoError("");
+  };
 
   const deliveryFee =
     subtotal >= SITE.freeDeliveryThreshold ? 0 : SITE.deliveryFee;
-  const total = subtotal + deliveryFee;
+  const discount = promo ? Math.min(promo.discount, subtotal) : 0;
+  const total = Math.max(0, subtotal - discount) + deliveryFee;
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,6 +84,7 @@ export default function CommandePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
+          promoCode: promo?.code || "",
           items: items.map((i) => ({ id: i.id, quantity: i.quantity })),
         }),
       });
@@ -175,11 +218,64 @@ export default function CommandePage() {
             </div>
 
             <div className="my-4 h-px bg-black/5" />
+
+            {/* Code promo */}
+            <div className="mb-4">
+              {promo ? (
+                <div className="flex items-center justify-between rounded-xl bg-emerald-50 px-3 py-2.5">
+                  <span className="flex items-center gap-2 text-sm font-medium text-emerald-700">
+                    <Check className="h-4 w-4" /> {promo.code} ({promo.label})
+                  </span>
+                  <button
+                    onClick={removePromo}
+                    className="text-emerald-700/70 hover:text-emerald-900"
+                    aria-label="Retirer le code"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Tag className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
+                      <input
+                        value={promoInput}
+                        onChange={(e) => {
+                          setPromoInput(e.target.value.toUpperCase());
+                          setPromoError("");
+                        }}
+                        onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), applyPromo())}
+                        placeholder="Code promo"
+                        className="w-full rounded-xl border border-black/10 bg-white py-2.5 pl-9 pr-3 text-sm uppercase outline-none focus:border-zaya focus:ring-2 focus:ring-zaya/20"
+                      />
+                    </div>
+                    <button
+                      onClick={applyPromo}
+                      disabled={promoLoading || !promoInput.trim()}
+                      className="rounded-xl bg-ink px-4 text-sm font-semibold text-white transition hover:bg-ink-soft disabled:opacity-50"
+                    >
+                      {promoLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Appliquer"}
+                    </button>
+                  </div>
+                  {promoError && (
+                    <p className="mt-1.5 text-xs text-red-500">{promoError}</p>
+                  )}
+                </>
+              )}
+            </div>
+
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-ink-muted">Sous-total</span>
                 <span>{formatPrice(subtotal)}</span>
               </div>
+              {discount > 0 && (
+                <div className="flex justify-between text-emerald-600">
+                  <span>Remise ({promo?.code})</span>
+                  <span>-{formatPrice(discount)}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-ink-muted">Livraison</span>
                 <span>
