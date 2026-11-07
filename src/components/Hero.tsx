@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight, Zap, Truck, ShieldCheck } from "lucide-react";
+import ErrorBoundary from "./ErrorBoundary";
 
 const HeroCanvas = dynamic(() => import("./HeroCanvas"), { ssr: false });
 
@@ -13,11 +14,37 @@ export default function Hero() {
   const [canRender3D, setCanRender3D] = useState(false);
 
   useEffect(() => {
-    const desktop = window.matchMedia("(min-width: 768px)").matches;
-    const reduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    setCanRender3D(desktop && !reduced);
+    try {
+      const desktop = window.matchMedia("(min-width: 768px)").matches;
+      const reduced = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+
+      // Mode économie de données / appareil faible -> pas de 3D
+      const conn = (navigator as unknown as {
+        connection?: { saveData?: boolean };
+      }).connection;
+      const saveData = conn?.saveData === true;
+      const lowMemory =
+        (navigator as unknown as { deviceMemory?: number }).deviceMemory !==
+          undefined &&
+        (navigator as unknown as { deviceMemory?: number }).deviceMemory! < 4;
+
+      // Vérifie le support WebGL
+      let webgl = false;
+      try {
+        const canvas = document.createElement("canvas");
+        webgl = !!(
+          canvas.getContext("webgl") || canvas.getContext("experimental-webgl")
+        );
+      } catch {
+        webgl = false;
+      }
+
+      setCanRender3D(desktop && !reduced && !saveData && !lowMemory && webgl);
+    } catch {
+      setCanRender3D(false);
+    }
   }, []);
 
   return (
@@ -29,10 +56,14 @@ export default function Hero() {
         <div className="absolute inset-0 pattern-grid opacity-40" />
       </div>
 
-      {/* Canvas 3D (desktop) */}
+      {/* Canvas 3D (desktop, avec repli en cas d'échec) */}
       {canRender3D && (
         <div className="absolute inset-y-0 right-0 hidden w-1/2 md:block">
-          <HeroCanvas />
+          <ErrorBoundary fallback={null}>
+            <Suspense fallback={null}>
+              <HeroCanvas />
+            </Suspense>
+          </ErrorBoundary>
         </div>
       )}
 
