@@ -55,14 +55,12 @@ const NAV_GROUPS: {
     label: "Marketing",
     items: [
       { href: "/admin/codes", label: "Codes promo", icon: Ticket },
-      { href: "/admin/notifications", label: "Notifications push", icon: Megaphone },
     ],
   },
   {
     label: "Configuration",
     items: [
       { href: "/admin/apparence", label: "Apparence", icon: Palette },
-      { href: "/admin/parametres", label: "Paramètres", icon: Settings },
     ],
   },
 ];
@@ -179,24 +177,6 @@ export default function AdminShell({
           ))}
         </nav>
 
-        <div className="space-y-1 border-t border-slate-100 p-4">
-          <a
-            href="/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-950"
-          >
-            <ArrowUpRight className="h-[18px] w-[18px] text-slate-400" />
-            Voir la boutique
-          </a>
-          <button
-            onClick={logout}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-red-50 hover:text-red-700"
-          >
-            <LogOut className="h-[18px] w-[18px] text-slate-400" />
-            Déconnexion
-          </button>
-        </div>
       </aside>
 
       <div className="min-h-screen lg:pl-[264px]">
@@ -221,21 +201,39 @@ export default function AdminShell({
                 {activeItem.label}
               </h1>
             </div>
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="flex shrink-0 items-center gap-1">
               <a
                 href="/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 sm:flex"
+                aria-label="Voir la boutique"
+                title="Voir la boutique"
+                className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
               >
-                Voir la boutique <ArrowUpRight className="h-3.5 w-3.5" />
+                <ArrowUpRight className="h-[18px] w-[18px]" />
               </a>
+              <Link
+                href="/admin/parametres"
+                aria-label="Paramètres"
+                title="Paramètres"
+                className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+              >
+                <Settings className="h-[18px] w-[18px]" />
+              </Link>
+              <Link
+                href="/admin/notifications"
+                aria-label="Notifications push"
+                title="Notifications push"
+                className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+              >
+                <Megaphone className="h-[18px] w-[18px]" />
+              </Link>
               <NotificationBell />
               <button
                 onClick={logout}
                 aria-label="Déconnexion"
                 title="Déconnexion"
-                className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-red-50 hover:text-red-600 lg:hidden"
+                className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-red-50 hover:text-red-600"
               >
                 <LogOut className="h-[18px] w-[18px]" />
               </button>

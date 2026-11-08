@@ -26,7 +26,15 @@ function resolveSecret(): string {
   return secret;
 }
 
-const encodedKey = new TextEncoder().encode(resolveSecret());
+// Clé calculée paresseusement (à l'exécution), jamais au build :
+// évite de casser `next build` quand AUTH_SECRET n'est pas injecté.
+let _encodedKey: Uint8Array | null = null;
+function getKey(): Uint8Array {
+  if (!_encodedKey) {
+    _encodedKey = new TextEncoder().encode(resolveSecret());
+  }
+  return _encodedKey;
+}
 
 export type SessionPayload = { role: "admin"; iat?: number; exp?: number };
 
@@ -35,7 +43,7 @@ export async function createSession(): Promise<string> {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("7d")
-    .sign(encodedKey);
+    .sign(getKey());
 }
 
 export async function verifySession(
@@ -43,7 +51,7 @@ export async function verifySession(
 ): Promise<SessionPayload | null> {
   if (!token) return null;
   try {
-    const { payload } = await jwtVerify(token, encodedKey, {
+    const { payload } = await jwtVerify(token, getKey(), {
       algorithms: ["HS256"],
     });
     if (payload.role !== "admin") return null;
@@ -77,7 +85,7 @@ export async function createDriverSession(
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("30d")
-    .sign(encodedKey);
+    .sign(getKey());
 }
 
 export async function verifyDriverSession(
@@ -85,7 +93,7 @@ export async function verifyDriverSession(
 ): Promise<DriverSession | null> {
   if (!token) return null;
   try {
-    const { payload } = await jwtVerify(token, encodedKey, {
+    const { payload } = await jwtVerify(token, getKey(), {
       algorithms: ["HS256"],
     });
     if (payload.role !== "driver" || !payload.driverId) return null;
