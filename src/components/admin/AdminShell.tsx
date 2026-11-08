@@ -3,85 +3,113 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import NotificationBell from "./NotificationBell";
 import {
-  LayoutDashboard,
-  Package,
+  ArrowUpRight,
+  BarChart3,
+  Bike,
   Boxes,
+  ChevronRight,
   FolderTree,
+  LayoutDashboard,
+  LogOut,
+  Megaphone,
+  Package,
+  Palette,
+  Settings,
   ShoppingCart,
   Ticket,
-  Settings,
   Users,
-  Bike,
-  Palette,
-  BarChart3,
-  Megaphone,
-  LogOut,
-  ExternalLink,
+  type LucideIcon,
 } from "lucide-react";
+import NotificationBell from "./NotificationBell";
 import { cn } from "@/lib/utils";
 
-const NAV = [
-  { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard, exact: true },
-  { href: "/admin/produits", label: "Produits", icon: Package },
-  { href: "/admin/stock", label: "Stock", icon: Boxes },
-  { href: "/admin/categories", label: "Catégories", icon: FolderTree },
-  { href: "/admin/commandes", label: "Commandes", icon: ShoppingCart },
-  { href: "/admin/clients", label: "CRM", icon: Users },
-  { href: "/admin/visiteurs", label: "Visiteurs", icon: BarChart3 },
-  { href: "/admin/livreurs", label: "Livreurs", icon: Bike },
-  { href: "/admin/codes", label: "Codes promo", icon: Ticket },
-  { href: "/admin/notifications", label: "Push", icon: Megaphone },
-  { href: "/admin/apparence", label: "Apparence", icon: Palette },
-  { href: "/admin/parametres", label: "Paramètres", icon: Settings },
+const NAV_GROUPS: {
+  label: string;
+  items: {
+    href: string;
+    label: string;
+    icon: LucideIcon;
+    exact?: boolean;
+  }[];
+}[] = [
+  {
+    label: "Boutique",
+    items: [
+      { href: "/admin", label: "Vue d’ensemble", icon: LayoutDashboard, exact: true },
+      { href: "/admin/commandes", label: "Commandes", icon: ShoppingCart },
+      { href: "/admin/produits", label: "Produits", icon: Package },
+      { href: "/admin/stock", label: "Stock", icon: Boxes },
+      { href: "/admin/categories", label: "Catégories", icon: FolderTree },
+    ],
+  },
+  {
+    label: "Clients",
+    items: [
+      { href: "/admin/clients", label: "CRM", icon: Users },
+      { href: "/admin/visiteurs", label: "Visiteurs", icon: BarChart3 },
+      { href: "/admin/livreurs", label: "Livreurs", icon: Bike },
+    ],
+  },
+  {
+    label: "Marketing",
+    items: [
+      { href: "/admin/codes", label: "Codes promo", icon: Ticket },
+      { href: "/admin/notifications", label: "Notifications push", icon: Megaphone },
+    ],
+  },
+  {
+    label: "Configuration",
+    items: [
+      { href: "/admin/apparence", label: "Apparence", icon: Palette },
+      { href: "/admin/parametres", label: "Paramètres", icon: Settings },
+    ],
+  },
 ];
 
-type DockItemProps = {
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  active?: boolean;
-  badge?: number;
-  tone?: "default" | "danger";
-};
+const NAV_ITEMS = NAV_GROUPS.flatMap((group) => group.items);
 
-/** Bouton du dock : icône + label flottant au survol. */
-function DockButton({
+function NavigationLink({
+  href,
   label,
   icon: Icon,
   active,
   badge,
-  tone = "default",
-}: DockItemProps) {
+  compact = false,
+}: {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  active: boolean;
+  badge?: number;
+  compact?: boolean;
+}) {
   return (
-    <span className="group relative flex flex-col items-center">
-      {/* Label flottant */}
-      <span
-        className="pointer-events-none absolute -top-11 whitespace-nowrap rounded-lg bg-ink px-2.5 py-1 text-xs font-medium text-white opacity-0 shadow-lg transition-all duration-200 group-hover:-top-10 group-hover:opacity-100"
-      >
-        {label}
-        <span className="absolute left-1/2 top-full h-2 w-2 -translate-x-1/2 -translate-y-1 rotate-45 bg-ink" />
-      </span>
-
-      {/* Icône */}
-      <span
+    <Link
+      href={href}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "group relative flex shrink-0 items-center rounded-xl text-sm font-medium transition-colors",
+        compact ? "gap-2 px-3 py-2" : "gap-3 px-3 py-2.5",
+        active
+          ? "bg-orange-50 text-orange-700"
+          : "text-slate-600 hover:bg-slate-100 hover:text-slate-950",
+      )}
+    >
+      <Icon
         className={cn(
-          "relative flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-200 group-hover:-translate-y-1 group-hover:scale-110",
-          active
-            ? "bg-zaya text-white shadow-lg shadow-zaya/30"
-            : tone === "danger"
-              ? "text-red-500 hover:bg-red-500/10"
-              : "text-ink/60 hover:bg-black/5 hover:text-ink",
+          "shrink-0",
+          compact ? "h-4 w-4" : "h-[18px] w-[18px]",
+          active ? "text-orange-600" : "text-slate-400 group-hover:text-slate-600",
         )}
-      >
-        <Icon className="h-6 w-6" />
-        {badge && badge > 0 ? (
-          <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-zaya px-1 text-[10px] font-bold text-white ring-2 ring-white">
-            {badge > 99 ? "99+" : badge}
-          </span>
-        ) : null}
-      </span>
-    </span>
+      />
+      <span className="whitespace-nowrap">{label}</span>
+      {badge !== undefined && badge > 0 && (
+        <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-orange-600 px-1 text-[10px] font-bold text-white">
+          {badge > 99 ? "99+" : badge}
+        </span>
+      )}
+    </Link>
   );
 }
 
@@ -94,6 +122,10 @@ export default function AdminShell({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const activeItem =
+    NAV_ITEMS.find((item) =>
+      item.exact ? pathname === item.href : pathname.startsWith(item.href),
+    ) ?? NAV_ITEMS[0];
 
   const logout = async () => {
     await fetch("/api/admin/logout", { method: "POST" });
@@ -101,67 +133,141 @@ export default function AdminShell({
     router.refresh();
   };
 
-  const isActive = (href: string, exact?: boolean) =>
-    exact ? pathname === href : pathname.startsWith(href);
-
   return (
-    <div className="min-h-screen bg-neutral-100">
-      {/* Topbar légère (branding) */}
-      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-black/5 bg-white/80 px-4 py-3 backdrop-blur sm:px-6">
-        <Link href="/admin" className="flex items-center">
+    <div className="min-h-screen bg-[#f6f7f8] text-slate-900">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[264px] flex-col border-r border-slate-200 bg-white lg:flex">
+        <Link
+          href="/admin"
+          className="flex h-[72px] items-center gap-3 border-b border-slate-100 px-6"
+        >
           <Image
             src="/logo-zaya.png"
             alt="ZAYA"
             width={100}
             height={34}
             className="h-7 w-auto"
+            priority
           />
-          <span className="ml-2 rounded bg-zaya px-1.5 py-0.5 text-[10px] font-bold text-white">
-            ADMIN
+          <span className="rounded-md bg-orange-50 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-orange-700">
+            Admin
           </span>
         </Link>
-        <NotificationBell />
-      </header>
 
-      {/* Contenu — espace réservé en bas pour le dock */}
-      <main className="p-4 pb-44 sm:p-6 sm:pb-44 lg:p-8 lg:pb-40">
-        {children}
-      </main>
-
-      {/* Dock flottant centré */}
-      <nav
-        aria-label="Navigation admin"
-        className="fixed inset-x-0 bottom-5 z-50 flex justify-center px-3"
-      >
-        <div className="flex max-w-full flex-wrap items-center justify-center gap-1.5 rounded-[1.75rem] border border-black/5 bg-white/85 p-2.5 shadow-2xl shadow-black/15 backdrop-blur-xl">
-          {NAV.map((item) => (
-            <Link key={item.href} href={item.href} aria-label={item.label}>
-              <DockButton
-                label={item.label}
-                icon={item.icon}
-                active={isActive(item.href, item.exact)}
-                badge={item.href === "/admin/commandes" ? pendingCount : undefined}
-              />
-            </Link>
+        <nav aria-label="Navigation admin" className="flex-1 space-y-6 overflow-y-auto px-4 py-6">
+          {NAV_GROUPS.map((group) => (
+            <section key={group.label}>
+              <h2 className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">
+                {group.label}
+              </h2>
+              <div className="space-y-1">
+                {group.items.map((item) => (
+                  <NavigationLink
+                    key={item.href}
+                    {...item}
+                    active={
+                      item.exact
+                        ? pathname === item.href
+                        : pathname.startsWith(item.href)
+                    }
+                    badge={
+                      item.href === "/admin/commandes" ? pendingCount : undefined
+                    }
+                  />
+                ))}
+              </div>
+            </section>
           ))}
+        </nav>
 
-          {/* Séparateur */}
-          <span className="mx-1 h-8 w-px shrink-0 bg-black/10" />
-
+        <div className="space-y-1 border-t border-slate-100 p-4">
           <a
             href="/"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Voir le site"
+            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-950"
           >
-            <DockButton label="Voir le site" icon={ExternalLink} />
+            <ArrowUpRight className="h-[18px] w-[18px] text-slate-400" />
+            Voir la boutique
           </a>
-
-          <button onClick={logout} aria-label="Déconnexion">
-            <DockButton label="Déconnexion" icon={LogOut} tone="danger" />
+          <button
+            onClick={logout}
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-red-50 hover:text-red-700"
+          >
+            <LogOut className="h-[18px] w-[18px] text-slate-400" />
+            Déconnexion
           </button>
         </div>
-      </nav>
+      </aside>
+
+      <div className="min-h-screen lg:pl-[264px]">
+        <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
+          <div className="flex h-[64px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+            <div className="flex min-w-0 items-center gap-3">
+              <Link href="/admin" className="flex shrink-0 items-center gap-2 lg:hidden">
+                <Image
+                  src="/logo-zaya.png"
+                  alt="ZAYA"
+                  width={84}
+                  height={30}
+                  className="h-6 w-auto"
+                  priority
+                />
+              </Link>
+              <div className="hidden items-center gap-2 text-sm text-slate-400 sm:flex">
+                <span>Administration</span>
+                <ChevronRight className="h-4 w-4" />
+              </div>
+              <h1 className="truncate text-sm font-semibold text-slate-900 sm:text-base">
+                {activeItem.label}
+              </h1>
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <a
+                href="/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 sm:flex"
+              >
+                Voir la boutique <ArrowUpRight className="h-3.5 w-3.5" />
+              </a>
+              <NotificationBell />
+              <button
+                onClick={logout}
+                aria-label="Déconnexion"
+                title="Déconnexion"
+                className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-red-50 hover:text-red-600 lg:hidden"
+              >
+                <LogOut className="h-[18px] w-[18px]" />
+              </button>
+            </div>
+          </div>
+
+          <nav
+            aria-label="Navigation admin mobile"
+            className="flex gap-1 overflow-x-auto border-t border-slate-100 px-3 py-2 lg:hidden"
+          >
+            {NAV_ITEMS.map((item) => (
+              <NavigationLink
+                key={item.href}
+                {...item}
+                compact
+                active={
+                  item.exact
+                    ? pathname === item.href
+                    : pathname.startsWith(item.href)
+                }
+                badge={
+                  item.href === "/admin/commandes" ? pendingCount : undefined
+                }
+              />
+            ))}
+          </nav>
+        </header>
+
+        <main className="mx-auto w-full max-w-[1600px] px-4 py-6 pb-10 sm:px-6 sm:py-8 lg:px-8 lg:py-9">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
