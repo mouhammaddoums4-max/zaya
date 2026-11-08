@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1983" height="793" viewBox="0 0 1983 793" fill="none">
+  <defs>
+    <linearGradient id="background" x1="0" y1="396" x2="1983" y2="396" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#100B08"/>
+      <stop offset=".48" stop-color="#24140D"/>
+      <stop offset="1" stop-color="#A94712"/>
+    </linearGradient>
+    <linearGradient id="wall" x1="1130" y1="80" x2="1900" y2="680" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E98236"/>
+      <stop offset="1" stop-color="#682B18"/>
+    </linearGradient>
+    <linearGradient id="sofa" x1="1210" y1="397" x2="1745" y2="704" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D18A52"/>
+      <stop offset="1" stop-color="#77391F"/>
+    </linearGradient>
+    <linearGradient id="rug" x1="1030" y1="680" x2="1900" y2="780" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B65325"/>
+      <stop offset="1" stop-color="#31170E"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="matrix(0 410 -690 0 1570 334)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFB35F" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#FF8A35" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <path fill="url(#background)" d="M0 0h1983v793H0z"/>
+  <path fill="url(#glow)" d="M0 0h1983v793H0z"/>
+  <path fill="url(#wall)" fill-opacity=".72" d="M1060 0h923v626h-923z"/>
+  <path fill="#F8B66C" fill-opacity=".12" d="M1184 74h310v357h-310z"/>
+  <path stroke="#FFD7A1" stroke-opacity=".42" stroke-width="12" d="M1202 92h274v322h-274z"/>
+  <path stroke="#FFD7A1" stroke-opacity=".3" stroke-width="8" d="M1339 98v310m-131-154h262"/>
+  <circle cx="1338" cy="250" r="62" fill="#F2A65D" fill-opacity=".62"/>
+  <path fill="#FFE0AE" fill-opacity=".45" d="m1329 216 10-25 11 25 26 10-26 11-11 25-10-25-26-11 26-10Z"/>
+  <path fill="#302016" d="M1034 723c94-144 250-193 410-177 224 22 367 102 539 112v135H1034v-70Z"/>
+  <path fill="url(#rug)" d="M1010 727c142-72 376-102 608-69 145 21 255 58 365 109v26h-973v-66Z"/>
+  <path fill="#271710" d="M1177 588h587l54 150h-695l54-150Z"/>
+  <path fill="url(#sofa)" d="M1191 451c0-52 42-94 94-94h418c52 0 94 42 94 94v177h-606V451Z"/>
+  <path fill="#B96738" d="M1161 503c0-30 24-54 54-54h62v194h-82c-19 0-34-15-34-34V503Zm616 0c0-30-24-54-54-54h-62v194h82c19 0 34-15 34-34V503Z"/>
+  <path fill="#E5AA6B" fill-opacity=".88" d="M1320 411h152v135h-152z"/>
+  <path fill="#A8512F" d="M1336 428h120v101h-120z"/>
+  <path fill="#E7B57C" fill-opacity=".8" d="M1489 411h154v135h-154z"/>
+  <path fill="#B46038" d="M1505 428h122v101h-122z"/>
+  <path fill="#60341F" d="M1250 623h30v115h-30zm453 0h30v115h-30z"/>
+  <path fill="#E3A65E" d="M1730 523h136v21h-136z"/>
+  <path fill="#7B4427" d="M1746 544h104l-10 139h-84l-10-139Z"/>
+  <path fill="#E7B875" d="M1757 543h82v12h-82z"/>
+  <path fill="#6C8A4B" d="M1798 517c-49-33-52-94-12-125 33 49 35 89 12 125Zm5 3c-7-59 24-102 76-107-2 57-28 91-76 107Zm-13 3c-46-48-35-105 8-132 24 56 21 96-8 132Zm12 0c18-49 61-68 100-51-23 45-59 62-100 51Z"/>
+  <path stroke="#8AA55F" stroke-width="12" d="M1795 542c7-62 35-107 74-145m-71 141c-13-61-14-101-10-137m12 134c18-43 47-68 82-80"/>
+  <path fill="#E9A64E" d="M1056 466h22v196h-22z"/>
+  <path fill="#FFCF80" d="M1017 462c0-22 18-40 40-40s40 18 40 40h-80Z"/>
+  <path fill="#FFC56E" fill-opacity=".22" d="M1016 462h82l91 177H926l90-177Z"/>
+  <path fill="#6C4126" d="M951 651h173v16H951z"/>
+  <path fill="#B87548" d="M141 95h271v7H141zm0 38h189v5H141zm0 39h232v5H141z"/>
+  <circle cx="1820" cy="122" r="5" fill="#FFD49B"/>
+  <circle cx="1858" cy="182" r="4" fill="#FFD49B" fill-opacity=".75"/>
+  <circle cx="1114" cy="216" r="5" fill="#FFD49B" fill-opacity=".65"/>
+  <path fill="#F2A65D" fill-opacity=".6" d="m1719 180 8-19 8 19 19 8-19 8-8 19-8-19-19-8 19-8Z"/>
+</svg>
