@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import {
   Star,
   Minus,
@@ -91,10 +90,7 @@ export default function ProductDetail({
     <div className="grid gap-8 lg:grid-cols-2">
       {/* Galerie */}
       <div className="lg:sticky lg:top-24 lg:self-start">
-        <motion.div
-          key={active}
-          initial={{ opacity: 0.4 }}
-          animate={{ opacity: 1 }}
+        <div
           className="relative aspect-square overflow-hidden rounded-3xl bg-white ring-1 ring-black/5"
         >
           <SmartImage
@@ -110,7 +106,7 @@ export default function ProductDetail({
               -{discount}%
             </span>
           )}
-        </motion.div>
+        </div>
         {images.length > 1 && (
           <div className="mt-3 flex gap-2">
             {images.map((img, i) => (

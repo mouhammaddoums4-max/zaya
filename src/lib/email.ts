@@ -10,8 +10,28 @@ type OrderEmailData = {
   items: { productName: string; quantity: number; price: number }[];
 };
 
+type DeliveredOrderEmailData = {
+  reference: string;
+  customerName: string;
+  location: string;
+  receivedBy: string;
+  deliveredAt: Date;
+};
+
 const fmt = (n: number) =>
   `${new Intl.NumberFormat("fr-FR").format(n)} FG`;
+
+const escapeHtml = (value: string) =>
+  value.replace(/[&<>"']/g, (char) => {
+    const entities: Record<string, string> = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+    };
+    return entities[char];
+  });
 
 /**
  * Envoie un email de notification à l'admin pour une nouvelle commande.
@@ -71,5 +91,54 @@ export async function sendOrderNotification(order: OrderEmailData) {
     });
   } catch {
     // on n'interrompt jamais la commande à cause de l'email
+  }
+}
+
+export async function sendDeliveryNotification(order: DeliveredOrderEmailData) {
+  const key = process.env.RESEND_API_KEY;
+  const to = process.env.ADMIN_EMAIL || "mouhammaddoums4@gmail.com";
+  const from = process.env.EMAIL_FROM || "ZAYA <onboarding@resend.dev>";
+  if (!key) return;
+
+  const reference = escapeHtml(order.reference);
+  const customerName = escapeHtml(order.customerName);
+  const location = escapeHtml(order.location);
+  const receivedBy = escapeHtml(order.receivedBy);
+  const deliveredAt = escapeHtml(
+    new Intl.DateTimeFormat("fr-FR", {
+      dateStyle: "long",
+      timeStyle: "short",
+      timeZone: "Africa/Conakry",
+    }).format(order.deliveredAt),
+  );
+  const html = `
+  <div style="font-family:Arial,sans-serif;max-width:560px;margin:auto">
+    <div style="background:#0A0A0B;padding:20px;text-align:center">
+      <span style="color:#F26B21;font-size:28px;font-weight:800">ZAYA</span>
+    </div>
+    <div style="padding:24px;border:1px solid #eee;border-top:none">
+      <h2 style="margin:0 0 4px">Livraison effectuée</h2>
+      <p style="color:#666;margin:0 0 16px">Commande : <b>${reference}</b></p>
+      <p>La commande de <b>${customerName}</b> a été livrée à ${location}.</p>
+      <p>Réceptionnée par : <b>${receivedBy}</b><br/>Le : ${deliveredAt}</p>
+    </div>
+  </div>`;
+
+  try {
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from,
+        to,
+        subject: `Livraison effectuée — commande ${reference}`,
+        html,
+      }),
+    });
+  } catch {
+    // Une erreur d'envoi ne doit pas annuler la livraison.
   }
 }

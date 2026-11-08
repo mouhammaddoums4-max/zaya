@@ -26,6 +26,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const url = `${SITE.url}/produit/${product.slug}`;
   const image = product.images[0];
+  const imageUrl =
+    image && !image.startsWith("data:")
+      ? new URL(image, SITE.url).toString()
+      : new URL("/opengraph-image", SITE.url).toString();
   const desc =
     `${formatPrice(product.price)} — ${product.description || product.name}. Commandez directement sur ZAYA avec livraison partout en Guinée.`.slice(
       0,
@@ -42,15 +46,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       siteName: SITE.name,
       title: `${product.name} — ${formatPrice(product.price)}`,
       description: desc,
-      images: image
-        ? [{ url: image, width: 900, height: 900, alt: product.name }]
-        : undefined,
+      images: [{ url: imageUrl, width: 900, height: 900, alt: product.name }],
     },
     twitter: {
       card: "summary_large_image",
       title: `${product.name} — ${formatPrice(product.price)}`,
       description: desc,
-      images: image ? [image] : undefined,
+      images: [imageUrl],
     },
   };
 }

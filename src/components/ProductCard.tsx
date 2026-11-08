@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { Star, ShoppingCart, Heart, Eye } from "lucide-react";
 import { useCart } from "@/store/cart";
 import { useWishlist } from "@/store/wishlist";
@@ -70,11 +69,7 @@ export default function ProductCard({
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.2 }}
+    <div
       className="group flex flex-col overflow-hidden rounded-xl bg-white ring-1 ring-black/[0.06] transition-shadow hover:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.18)]"
     >
       <Link href={`/produit/${product.slug}`} onClick={openQV} className="relative block">
@@ -84,7 +79,7 @@ export default function ProductCard({
             alt={product.name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-cover"
           />
           {discount > 0 && (
             <span className="absolute left-2 top-2 rounded-md bg-red-500 px-1.5 py-0.5 text-[11px] font-bold text-white">
@@ -161,6 +156,6 @@ export default function ProductCard({
           Ajouter au panier
         </button>
       </div>
-    </motion.div>
+    </div>
   );
 }

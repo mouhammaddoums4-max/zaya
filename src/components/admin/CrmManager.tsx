@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Users,
   Wallet,
@@ -82,6 +82,22 @@ export default function CrmManager({ clients }: { clients: CrmClient[] }) {
   const [smsMsg, setSmsMsg] = useState("");
   const [smsSeg, setSmsSeg] = useState<"TOUS" | Segment>("TOUS");
   const [smsLoading, setSmsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!smsOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !smsLoading) setSmsOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [smsOpen, smsLoading]);
 
   const sendSmsPromo = async () => {
     if (!smsMsg.trim()) return;
@@ -189,7 +205,7 @@ export default function CrmManager({ clients }: { clients: CrmClient[] }) {
             <Download className="h-4 w-4" /> Exporter (Excel)
           </a>
           <button
-            onClick={() => setSmsOpen((v) => !v)}
+            onClick={() => setSmsOpen(true)}
             className="flex items-center gap-1.5 rounded-lg bg-zaya px-3 py-2 text-sm font-semibold text-white transition hover:bg-zaya-600"
           >
             <MessageSquare className="h-4 w-4" /> SMS promo
@@ -197,76 +213,94 @@ export default function CrmManager({ clients }: { clients: CrmClient[] }) {
         </div>
       </div>
 
-      {/* Composeur SMS promotionnel */}
       {smsOpen && (
-        <div className="mb-6 rounded-2xl bg-white p-5 shadow-card ring-1 ring-black/5">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="flex items-center gap-2 font-display font-bold">
-              <MessageSquare className="h-5 w-5 text-zaya" /> SMS promotionnel
-            </h2>
-            <button
-              onClick={() => setSmsOpen(false)}
-              className="text-ink-muted hover:text-ink"
-              aria-label="Fermer"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-[1fr_200px]">
-            <div>
-              <textarea
-                value={smsMsg}
-                onChange={(e) => setSmsMsg(e.target.value)}
-                rows={4}
-                maxLength={480}
-                placeholder="Ex. ZAYA : -20% ce week-end sur toute la boutique ! Commandez sur zayamarket.store"
-                className="w-full resize-none rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm outline-none focus:border-zaya focus:ring-2 focus:ring-zaya/20"
-              />
-              <p className="mt-1 text-right text-xs text-ink-muted">
-                {smsMsg.length}/480
-              </p>
-            </div>
-            <div className="space-y-3">
-              <div>
-                <label className="mb-1 block text-xs font-medium text-ink-muted">
-                  Destinataires
-                </label>
-                <select
-                  value={smsSeg}
-                  onChange={(e) =>
-                    setSmsSeg(e.target.value as "TOUS" | Segment)
-                  }
-                  className="w-full rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm outline-none focus:border-zaya"
-                >
-                  <option value="TOUS">Tous ({enriched.length})</option>
-                  <option value="VIP">VIP ({segmentCounts.VIP})</option>
-                  <option value="RECURRENT">
-                    Récurrents ({segmentCounts.RECURRENT})
-                  </option>
-                  <option value="NOUVEAU">
-                    Nouveaux ({segmentCounts.NOUVEAU})
-                  </option>
-                </select>
-              </div>
-              <button
-                onClick={sendSmsPromo}
-                disabled={smsLoading || !smsMsg.trim()}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-zaya px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zaya-600 disabled:opacity-60"
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !smsLoading) {
+              setSmsOpen(false);
+            }
+          }}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="sms-promo-title"
+            className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl ring-1 ring-black/10 sm:p-6"
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h2
+                id="sms-promo-title"
+                className="flex items-center gap-2 font-display font-bold"
               >
-                {smsLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <>
-                    <Send className="h-4 w-4" /> Envoyer
-                  </>
-                )}
+                <MessageSquare className="h-5 w-5 text-zaya" /> SMS promotionnel
+              </h2>
+              <button
+                onClick={() => setSmsOpen(false)}
+                disabled={smsLoading}
+                className="rounded-lg p-1 text-ink-muted hover:bg-black/5 hover:text-ink disabled:opacity-50"
+                aria-label="Fermer"
+              >
+                <X className="h-5 w-5" />
               </button>
             </div>
-          </div>
-          <p className="mt-3 text-xs text-ink-muted">
-            Envoi via Nimba SMS. Nécessite les variables NIMBA_SERVICE_ID /
-            NIMBA_SECRET_TOKEN côté serveur.
-          </p>
+            <div className="grid gap-4 sm:grid-cols-[1fr_200px]">
+              <div>
+                <textarea
+                  autoFocus
+                  value={smsMsg}
+                  onChange={(e) => setSmsMsg(e.target.value)}
+                  rows={4}
+                  maxLength={480}
+                  placeholder="Ex. ZAYA : -20% ce week-end sur toute la boutique ! Commandez sur zayamarket.store"
+                  className="w-full resize-none rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm outline-none focus:border-zaya focus:ring-2 focus:ring-zaya/20"
+                />
+                <p className="mt-1 text-right text-xs text-ink-muted">
+                  {smsMsg.length}/480
+                </p>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-ink-muted">
+                    Destinataires
+                  </label>
+                  <select
+                    value={smsSeg}
+                    onChange={(e) =>
+                      setSmsSeg(e.target.value as "TOUS" | Segment)
+                    }
+                    className="w-full rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm outline-none focus:border-zaya"
+                  >
+                    <option value="TOUS">Tous ({enriched.length})</option>
+                    <option value="VIP">VIP ({segmentCounts.VIP})</option>
+                    <option value="RECURRENT">
+                      Récurrents ({segmentCounts.RECURRENT})
+                    </option>
+                    <option value="NOUVEAU">
+                      Nouveaux ({segmentCounts.NOUVEAU})
+                    </option>
+                  </select>
+                </div>
+                <button
+                  onClick={sendSmsPromo}
+                  disabled={smsLoading || !smsMsg.trim()}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-zaya px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zaya-600 disabled:opacity-60"
+                >
+                  {smsLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4" /> Envoyer
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+            <p className="mt-3 text-xs text-ink-muted">
+              Envoi via Nimba SMS. Nécessite les variables NIMBA_SERVICE_ID /
+              NIMBA_SECRET_TOKEN côté serveur.
+            </p>
+          </section>
         </div>
       )}
 

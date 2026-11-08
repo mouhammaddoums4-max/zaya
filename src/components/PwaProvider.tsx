@@ -15,7 +15,16 @@ export default function PwaProvider() {
 
   useEffect(() => {
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js").catch(() => {});
+      if (process.env.NODE_ENV === "production") {
+        navigator.serviceWorker.register("/sw.js").catch(() => {});
+      } else {
+        navigator.serviceWorker
+          .getRegistrations()
+          .then((registrations) =>
+            Promise.all(registrations.map((registration) => registration.unregister())),
+          )
+          .catch(() => {});
+      }
     }
 
     const onPrompt = (e: Event) => {

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getDriverSession } from "@/lib/auth";
+import { sendDeliveryNotification } from "@/lib/email";
+import { sendSms } from "@/lib/sms";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -84,6 +86,21 @@ export async function PATCH(req: Request, { params }: Ctx) {
   if (result.count !== 1) {
     return NextResponse.json({ error: "La commande a déjà été modifiée." }, { status: 409 });
   }
+
+  const adminSms = process.env.ADMIN_SMS_NUMBER || "224628358080";
+  await Promise.allSettled([
+    sendSms(
+      adminSms,
+      `ZAYA - Livraison effectuée: commande ${order.reference}, client ${order.customerName}, lieu ${order.location}, réceptionnée par ${data.receivedBy}.`,
+    ),
+    sendDeliveryNotification({
+      reference: order.reference,
+      customerName: order.customerName,
+      location: order.location,
+      receivedBy: data.receivedBy,
+      deliveredAt: data.deliveredAt,
+    }),
+  ]);
 
   return NextResponse.json({ ok: true });
 }

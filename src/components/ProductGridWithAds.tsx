@@ -12,7 +12,7 @@ function AdTile({ ad }: { ad: SquareAd }) {
         alt="Publicité"
         fill
         sizes="(max-width: 640px) 50vw, 20vw"
-        className="object-cover transition-transform duration-500 hover:scale-105"
+        className="object-cover"
       />
       <span className="absolute left-2 top-2 rounded bg-black/40 px-1.5 py-0.5 text-[10px] font-medium text-white backdrop-blur">
         Pub

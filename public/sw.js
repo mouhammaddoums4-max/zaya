@@ -1,5 +1,5 @@
 /* ZAYA Service Worker — PWA offline + notifications push */
-const CACHE = "zaya-v2";
+const CACHE = "zaya-v3";
 const PRECACHE = ["/", "/logo-zaya.png", "/icons/icon-192.png"];
 
 self.addEventListener("install", (event) => {
@@ -32,6 +32,8 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+  // Next.js assets and RSC payloads must match the current server version.
+  if (url.pathname.startsWith("/_next/")) return;
   // Ne pas mettre en cache les routes API / admin / livreur
   if (url.pathname.startsWith("/api") || url.pathname.startsWith("/admin") || url.pathname.startsWith("/livreur")) {
     return;
