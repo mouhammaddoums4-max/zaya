@@ -57,7 +57,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <HomeHero categories={categories} slides={settings.slides} />
+      <HomeHero slides={settings.slides} />
 
       <div className="container-zaya space-y-8 py-6 sm:space-y-10 sm:py-8">
         <ScrollReveal>

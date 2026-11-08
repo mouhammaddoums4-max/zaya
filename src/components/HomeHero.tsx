@@ -17,9 +17,7 @@ const TRUST = [
   { icon: Zap, title: "Rapidité", desc: "Livraison express" },
   { icon: Headphones, title: "Assistance", desc: "7j/7 sur WhatsApp" },
 ];
-import { CategoryIcon } from "./icons";
 import SmartImage from "./SmartImage";
-import type { CategoryData } from "@/lib/types";
 import type { Slide } from "@/lib/data";
 
 const DEFAULT_SLIDES: Slide[] = [
@@ -60,13 +58,7 @@ const DEFAULT_SLIDES: Slide[] = [
   },
 ];
 
-export default function HomeHero({
-  categories,
-  slides,
-}: {
-  categories: CategoryData[];
-  slides?: Slide[];
-}) {
+export default function HomeHero({ slides }: { slides?: Slide[] }) {
   const data = slides && slides.length > 0 ? slides : DEFAULT_SLIDES;
   const [index, setIndex] = useState(0);
   const [dir, setDir] = useState(1);
@@ -91,32 +83,12 @@ export default function HomeHero({
 
   return (
     <div className="container-zaya pt-4">
-      <div className="flex items-start gap-4">
-        {/* Sidebar catégories (desktop) */}
-        <aside className="hidden w-64 shrink-0 lg:block">
-          <div className="overflow-hidden rounded-xl bg-white ring-1 ring-black/[0.06]">
-            {categories.slice(0, 10).map((cat) => (
-              <Link
-                key={cat.id}
-                href={`/categorie/${cat.slug}`}
-                className="group flex items-center justify-between border-b border-black/5 px-4 py-[11px] text-sm text-ink transition last:border-0 hover:bg-zaya-50 hover:text-zaya"
-              >
-                <span className="flex items-center gap-3">
-                  <CategoryIcon name={cat.icon} className="h-[18px] w-[18px] text-ink-muted group-hover:text-zaya" />
-                  <span className="line-clamp-1">{cat.name}</span>
-                </span>
-                <ChevronRight className="h-4 w-4 text-transparent group-hover:text-zaya" />
-              </Link>
-            ))}
-          </div>
-        </aside>
-
-        {/* Carrousel */}
-        <div
-          className="group relative flex-1 overflow-hidden rounded-xl bg-ink"
-          onMouseEnter={() => (paused.current = true)}
-          onMouseLeave={() => (paused.current = false)}
-        >
+      {/* Carrousel */}
+      <div
+        className="group relative w-full overflow-hidden rounded-xl bg-ink"
+        onMouseEnter={() => (paused.current = true)}
+        onMouseLeave={() => (paused.current = false)}
+      >
           <div className="relative aspect-[1983/793] w-full">
             <AnimatePresence mode="popLayout" custom={dir}>
               <motion.div
@@ -133,7 +105,7 @@ export default function HomeHero({
                   alt={slide.subtitle || slide.title || "ZAYA"}
                   fill
                   priority
-                  sizes="(max-width: 1024px) 100vw, 900px"
+                  sizes="(max-width: 1280px) 100vw, 1280px"
                   className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-ink/90 via-ink/55 to-transparent" />
@@ -214,7 +186,6 @@ export default function HomeHero({
               </div>
             )}
           </div>
-        </div>
       </div>
 
       {/* Réassurance */}
