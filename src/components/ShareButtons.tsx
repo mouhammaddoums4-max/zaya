@@ -7,23 +7,26 @@ import { toast } from "./Toaster";
 export default function ShareButtons({
   url,
   title,
+  shareText,
   compact = false,
 }: {
   url: string;
   title: string;
+  shareText?: string;
   compact?: boolean;
 }) {
   const [copied, setCopied] = useState(false);
   const enc = encodeURIComponent;
 
   const fb = `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`;
-  const wa = `https://wa.me/?text=${enc(`${title} — ${url}`)}`;
-  const tw = `https://twitter.com/intent/tweet?url=${enc(url)}&text=${enc(title)}`;
+  const message = shareText ? `${title}. ${shareText}` : title;
+  const wa = `https://wa.me/?text=${enc(`${message} ${url}`)}`;
+  const tw = `https://twitter.com/intent/tweet?url=${enc(url)}&text=${enc(message)}`;
 
   const nativeShare = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ title, url });
+        await navigator.share({ title, text: shareText, url });
       } catch {
         /* annulé */
       }

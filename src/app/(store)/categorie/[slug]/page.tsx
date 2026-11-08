@@ -5,6 +5,8 @@ import { ChevronRight } from "lucide-react";
 import ProductGridWithAds from "@/components/ProductGridWithAds";
 import BoutiqueToolbar from "@/components/BoutiqueToolbar";
 import { CategoryIcon } from "@/components/icons";
+import ShareButtons from "@/components/ShareButtons";
+import { SITE } from "@/lib/constants";
 import { getCategoryBySlug, searchProducts, getSettings, getSubcategories } from "@/lib/data";
 
 export const revalidate = 30;
@@ -18,9 +20,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const cat = await getCategoryBySlug(slug);
   if (!cat) return { title: "Catégorie introuvable" };
+  const url = `${SITE.url}/categorie/${cat.slug}`;
+  const description = `Découvrez tous les produits de la catégorie ${cat.name} sur ZAYA. Commandez en ligne et profitez de la livraison partout en Guinée.`;
   return {
     title: cat.name,
-    description: `Achetez ${cat.name} au meilleur prix sur ZAYA. Livraison partout en Guinée.`,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "website",
+      url,
+      siteName: SITE.name,
+      title: `${cat.name} — ZAYA`,
+      description,
+      images: [{ url: cat.image || "/opengraph-image", alt: cat.name }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${cat.name} — ZAYA`,
+      description,
+      images: [cat.image || "/opengraph-image"],
+    },
   };
 }
 
@@ -35,6 +54,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     getSettings(),
     getSubcategories(category.id),
   ]);
+  const categoryUrl = `${SITE.url}/categorie/${category.slug}`;
 
   return (
     <div className="container-zaya py-6 sm:py-8">
@@ -51,6 +71,14 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         <h1 className="font-display text-2xl font-bold text-ink sm:text-3xl">
           {category.name}
         </h1>
+      </div>
+
+      <div className="mb-5 rounded-xl bg-white p-3 ring-1 ring-black/5">
+        <ShareButtons
+          url={categoryUrl}
+          title={`Toute la catégorie ${category.name} sur ZAYA`}
+          shareText={`Découvrez les produits de ${category.name} et commandez directement sur ZAYA.`}
+        />
       </div>
 
       {subcats.length > 0 && (

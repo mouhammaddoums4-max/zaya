@@ -32,6 +32,7 @@ type DetailProduct = {
   reviewsCount: number;
   sold: number;
   stock: number;
+  isFlashDeal: boolean;
   brand: string | null;
   condition: ProductCondition;
 };
@@ -62,6 +63,7 @@ export default function ProductDetail({
         price: product.price,
         image: product.images[0],
         stock: product.stock,
+        isFlashDeal: product.isFlashDeal,
       },
       qty,
     );
@@ -78,6 +80,7 @@ export default function ProductDetail({
         price: product.price,
         image: product.images[0],
         stock: product.stock,
+        isFlashDeal: product.isFlashDeal,
       },
       qty,
     );
@@ -221,7 +224,11 @@ export default function ProductDetail({
 
         {/* Partage */}
         <div className="mt-6 border-t border-black/5 pt-5">
-          <ShareButtons url={url} title={product.name} />
+          <ShareButtons
+            url={url}
+            title={`${product.name} — ${formatPrice(product.price)}`}
+            shareText="Découvrez ce produit et commandez directement sur ZAYA, avec livraison partout en Guinée."
+          />
         </div>
 
         {/* Garanties */}

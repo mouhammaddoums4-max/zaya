@@ -99,7 +99,7 @@ export default async function Footer() {
           <p>© {new Date().getFullYear()} ZAYA. Tous droits réservés.</p>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
             <Link href="/politiques" className="hover:text-white">Politique de vente</Link>
-            <Link href="/politiques" className="hover:text-white">Confidentialité</Link>
+            <Link href="/confidentialite" className="hover:text-white">Confidentialité</Link>
             <Link href="/a-propos" className="hover:text-white">À propos</Link>
           </div>
         </div>

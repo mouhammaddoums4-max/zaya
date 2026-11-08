@@ -5,20 +5,13 @@ import Link from "next/link";
 import { Zap, ArrowRight } from "lucide-react";
 import ProductCard from "./ProductCard";
 import type { ProductCardData } from "@/lib/types";
+import { getEndOfDayCountdown } from "@/lib/format";
 
 function useCountdown() {
   const [time, setTime] = useState({ h: 0, m: 0, s: 0 });
   useEffect(() => {
     const tick = () => {
-      const now = new Date();
-      const end = new Date();
-      end.setHours(23, 59, 59, 999);
-      const diff = Math.max(0, end.getTime() - now.getTime());
-      setTime({
-        h: Math.floor(diff / 3_600_000),
-        m: Math.floor((diff % 3_600_000) / 60_000),
-        s: Math.floor((diff % 60_000) / 1000),
-      });
+      setTime(getEndOfDayCountdown());
     };
     tick();
     const id = setInterval(tick, 1000);

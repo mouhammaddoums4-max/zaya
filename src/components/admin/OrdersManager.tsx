@@ -11,7 +11,7 @@ import {
   Package,
 } from "lucide-react";
 import { formatPrice } from "@/lib/format";
-import { STATUS_META, STATUS_ORDER, type OrderStatus } from "./statusMeta";
+import { STATUS_META, type OrderStatus } from "./statusMeta";
 import { toast } from "@/components/Toaster";
 
 type Item = {
@@ -63,11 +63,55 @@ export default function OrdersManager({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ driverId: driverId || null }),
       });
-      if (!res.ok) throw new Error("Erreur");
-      toast(driverId ? "Livreur assigné ✅ (SMS envoyé)" : "Livreur retiré");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Erreur d'assignation");
+      toast(
+        driverId
+          ? "Livreur assigné, commande en livraison ✅"
+          : "Livreur retiré, commande repassée en confirmée",
+      );
       router.refresh();
-    } catch {
-      toast("Erreur d'assignation", "error");
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Erreur d'assignation", "error");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const acceptOrder = async (id: string) => {
+    setBusy(id);
+    try {
+      const res = await fetch(`/api/admin/orders/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accept: true }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Impossible d'accepter la commande");
+      toast("Commande confirmée ✅");
+      router.refresh();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Erreur", "error");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const cancelOrder = async (id: string, ref: string) => {
+    if (!confirm(`Annuler la commande ${ref} ? Cette action sera conservée dans l'historique.`)) return;
+    setBusy(id);
+    try {
+      const res = await fetch(`/api/admin/orders/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cancel: true }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Impossible d'annuler la commande");
+      toast("Commande annulée");
+      router.refresh();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Erreur", "error");
     } finally {
       setBusy(null);
     }
@@ -91,34 +135,17 @@ export default function OrdersManager({
     }
   };
 
-  const changeStatus = async (id: string, status: OrderStatus) => {
-    setBusy(id);
-    try {
-      const res = await fetch(`/api/admin/orders/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-      });
-      if (!res.ok) throw new Error("Erreur");
-      toast("Statut mis à jour ✅");
-      router.refresh();
-    } catch {
-      toast("Impossible de changer le statut", "error");
-    } finally {
-      setBusy(null);
-    }
-  };
-
   const remove = async (id: string, ref: string) => {
     if (!confirm(`Supprimer la commande ${ref} ?`)) return;
     setBusy(id);
     try {
       const res = await fetch(`/api/admin/orders/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Erreur");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Suppression impossible");
       toast("Commande supprimée");
       router.refresh();
-    } catch {
-      toast("Suppression impossible", "error");
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Suppression impossible", "error");
     } finally {
       setBusy(null);
     }
@@ -235,32 +262,74 @@ export default function OrdersManager({
 
                 {/* Actions */}
                 <div className="flex flex-wrap items-center gap-2">
-                  <select
-                    value={o.status}
-                    onChange={(e) => changeStatus(o.id, e.target.value as OrderStatus)}
-                    disabled={busy === o.id}
-                    className="rounded-xl border border-black/10 bg-white px-3 py-2 text-sm font-medium outline-none focus:border-zaya"
-                  >
-                    {STATUS_ORDER.map((s) => (
-                      <option key={s} value={s}>
-                        {STATUS_META[s].label}
-                      </option>
-                    ))}
-                  </select>
-                  <select
-                    value={o.driverId || ""}
-                    onChange={(e) => assignDriver(o.id, e.target.value)}
-                    disabled={busy === o.id}
-                    className="rounded-xl border border-black/10 bg-white px-3 py-2 text-sm font-medium outline-none focus:border-zaya"
-                    title="Assigner un livreur"
-                  >
-                    <option value="">🛵 Aucun livreur</option>
-                    {drivers.map((d) => (
-                      <option key={d.id} value={d.id}>
-                        {d.name}
-                      </option>
-                    ))}
-                  </select>
+                  {o.status === "EN_ATTENTE" && (
+                    <>
+                      <button
+                        onClick={() => acceptOrder(o.id)}
+                        disabled={busy === o.id}
+                        className="rounded-xl bg-zaya px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                      >
+                        {busy === o.id ? "Traitement…" : "Accepter la commande"}
+                      </button>
+                      {!o.paid && (
+                        <button
+                          onClick={() => cancelOrder(o.id, o.reference)}
+                          disabled={busy === o.id}
+                          className="rounded-xl border border-red-200 px-3 py-2 text-sm font-semibold text-red-600 disabled:opacity-50"
+                        >
+                          Annuler
+                        </button>
+                      )}
+                    </>
+                  )}
+                  {o.status === "CONFIRMEE" && (
+                    <>
+                      <select
+                        value={o.driverId || ""}
+                        onChange={(e) => assignDriver(o.id, e.target.value)}
+                        disabled={busy === o.id}
+                        className="rounded-xl border border-black/10 bg-white px-3 py-2 text-sm font-medium outline-none focus:border-zaya disabled:opacity-50"
+                        aria-label="Assigner un livreur"
+                      >
+                        <option value="">Choisir un livreur</option>
+                        {drivers.map((d) => (
+                          <option key={d.id} value={d.id}>
+                            {d.name}
+                          </option>
+                        ))}
+                      </select>
+                      {!o.paid && (
+                        <button
+                          onClick={() => cancelOrder(o.id, o.reference)}
+                          disabled={busy === o.id}
+                          className="rounded-xl border border-red-200 px-3 py-2 text-sm font-semibold text-red-600 disabled:opacity-50"
+                        >
+                          Annuler
+                        </button>
+                      )}
+                    </>
+                  )}
+                  {o.status === "EN_LIVRAISON" && (
+                    <select
+                      value={o.driverId || ""}
+                      onChange={(e) => assignDriver(o.id, e.target.value)}
+                      disabled={busy === o.id}
+                      className="rounded-xl border border-black/10 bg-white px-3 py-2 text-sm font-medium outline-none focus:border-zaya disabled:opacity-50"
+                      aria-label="Changer ou retirer le livreur"
+                    >
+                      <option value="">Retirer le livreur</option>
+                      {drivers.map((d) => (
+                        <option key={d.id} value={d.id}>
+                          {d.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                  {(o.status === "LIVREE" || o.status === "ANNULEE") && (
+                    <span className="rounded-xl bg-neutral-100 px-3 py-2 text-sm text-ink-muted">
+                      {o.status === "LIVREE" ? "Livraison terminée" : "Commande annulée"}
+                    </span>
+                  )}
                   <a
                     href={waLink}
                     target="_blank"
@@ -288,7 +357,7 @@ export default function OrdersManager({
                         Envoyer le reçu (WhatsApp)
                       </a>
                     </>
-                  ) : (
+                  ) : o.status !== "ANNULEE" ? (
                     <button
                       onClick={() => markPaid(o.id)}
                       disabled={busy === o.id}
@@ -300,19 +369,21 @@ export default function OrdersManager({
                         "Enregistrer le paiement"
                       )}
                     </button>
+                  ) : null}
+                  {o.status === "EN_ATTENTE" && !o.paid && (
+                    <button
+                      onClick={() => remove(o.id, o.reference)}
+                      disabled={busy === o.id}
+                      className="ml-auto flex h-9 w-9 items-center justify-center rounded-xl text-ink-muted hover:bg-red-50 hover:text-red-500 disabled:opacity-50"
+                      aria-label="Supprimer la commande en attente"
+                    >
+                      {busy === o.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                    </button>
                   )}
-                  <button
-                    onClick={() => remove(o.id, o.reference)}
-                    disabled={busy === o.id}
-                    className="ml-auto flex h-9 w-9 items-center justify-center rounded-xl text-ink-muted hover:bg-red-50 hover:text-red-500"
-                    aria-label="Supprimer"
-                  >
-                    {busy === o.id ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Trash2 className="h-4 w-4" />
-                    )}
-                  </button>
                 </div>
               </div>
             )}

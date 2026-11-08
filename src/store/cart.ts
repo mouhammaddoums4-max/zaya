@@ -11,6 +11,7 @@ export type CartItem = {
   image?: string;
   stock: number;
   quantity: number;
+  isFlashDeal?: boolean;
 };
 
 type CartState = {

@@ -50,6 +50,7 @@ export default function ProductCard({
       price: product.price,
       image: product.images[0],
       stock: product.stock,
+      isFlashDeal: product.isFlashDeal,
     });
     toast("Ajouté au panier ✅");
   };
@@ -70,10 +71,10 @@ export default function ProductCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 14 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
       viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.35, delay: Math.min(index * 0.03, 0.25) }}
+      transition={{ duration: 0.2 }}
       className="group flex flex-col overflow-hidden rounded-xl bg-white ring-1 ring-black/[0.06] transition-shadow hover:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.18)]"
     >
       <Link href={`/produit/${product.slug}`} onClick={openQV} className="relative block">

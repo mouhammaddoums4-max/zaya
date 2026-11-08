@@ -15,11 +15,3 @@ export const STATUS_META: Record<
   LIVREE: { label: "Livrée", badge: "bg-emerald-100 text-emerald-700" },
   ANNULEE: { label: "Annulée", badge: "bg-red-100 text-red-700" },
 };
-
-export const STATUS_ORDER: OrderStatus[] = [
-  "EN_ATTENTE",
-  "CONFIRMEE",
-  "EN_LIVRAISON",
-  "LIVREE",
-  "ANNULEE",
-];

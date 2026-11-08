@@ -3,18 +3,21 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User, Phone, MapPin, MessageSquare, Loader2, ShieldCheck, Tag, Check, X } from "lucide-react";
+import { User, Phone, MapPin, MessageSquare, Loader2, ShieldCheck, Tag, Check, X, Zap } from "lucide-react";
 import { useCart } from "@/store/cart";
 import { formatPrice } from "@/lib/format";
 import SmartImage from "@/components/SmartImage";
 import { SITE } from "@/lib/constants";
 import { toast } from "@/components/Toaster";
+import { getEndOfDayCountdown } from "@/lib/format";
 
 export default function CommandePage() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const { items, clear } = useCart();
   const subtotal = useCart((s) => s.subtotal());
+  const hasFlashDeal = items.some((item) => item.isFlashDeal);
+  const [flashCountdown, setFlashCountdown] = useState<ReturnType<typeof getEndOfDayCountdown> | null>(null);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     customerName: "",
@@ -34,6 +37,16 @@ export default function CommandePage() {
   const [promoError, setPromoError] = useState("");
 
   useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    if (!hasFlashDeal) {
+      setFlashCountdown(null);
+      return;
+    }
+    const updateCountdown = () => setFlashCountdown(getEndOfDayCountdown());
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [hasFlashDeal]);
 
   const applyPromo = async () => {
     if (!promoInput.trim()) return;
@@ -231,6 +244,23 @@ export default function CommandePage() {
                 </div>
               ))}
             </div>
+
+            {hasFlashDeal && flashCountdown && (
+              <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-amber-900">
+                <p className="flex items-center gap-1.5 text-sm font-semibold">
+                  <Zap className="h-4 w-4 shrink-0 text-amber-600" />
+                  Votre vente flash se termine aujourd’hui
+                </p>
+                <p className="mt-1 text-xs">
+                  Validez avant la fin du compte à rebours pour profiter de cette offre.
+                </p>
+                <p className="mt-2 text-center font-mono text-lg font-bold tabular-nums" aria-live="off">
+                  {String(flashCountdown.h).padStart(2, "0")}:
+                  {String(flashCountdown.m).padStart(2, "0")}:
+                  {String(flashCountdown.s).padStart(2, "0")}
+                </p>
+              </div>
+            )}
 
             <div className="my-4 h-px bg-black/5" />
 

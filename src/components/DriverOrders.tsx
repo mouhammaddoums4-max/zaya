@@ -51,7 +51,7 @@ export default function DriverOrders({
     id: string,
     status: "EN_LIVRAISON" | "LIVREE",
     extra?: { signature?: string; receivedBy?: string },
-  ) => {
+  ): Promise<boolean> => {
     setBusy(id);
     try {
       const res = await fetch(`/api/livreur/orders/${id}`, {
@@ -63,8 +63,10 @@ export default function DriverOrders({
       if (!res.ok) throw new Error(data.error || "Erreur");
       toast(status === "LIVREE" ? "Livraison confirmée ✅" : "Course démarrée 🛵");
       router.refresh();
+      return true;
     } catch (err) {
       toast(err instanceof Error ? err.message : "Erreur", "error");
+      return false;
     } finally {
       setBusy(null);
     }
@@ -82,11 +84,11 @@ export default function DriverOrders({
       toast("Faites signer le client avant de confirmer", "error");
       return;
     }
-    await setStatus(signOrder.id, "LIVREE", {
+    const delivered = await setStatus(signOrder.id, "LIVREE", {
       signature: sigData,
       receivedBy: receivedBy.trim() || signOrder.customerName,
     });
-    setSignOrder(null);
+    if (delivered) setSignOrder(null);
   };
 
   const logout = async () => {

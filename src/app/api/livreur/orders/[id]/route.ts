@@ -34,26 +34,56 @@ export async function PATCH(req: Request, { params }: Ctx) {
     return NextResponse.json({ error: "Commande introuvable" }, { status: 404 });
   }
 
+  if (parsed.data.status === "EN_LIVRAISON") {
+    if (order.status === "EN_LIVRAISON") {
+      return NextResponse.json({ ok: true });
+    }
+    if (order.status !== "CONFIRMEE") {
+      return NextResponse.json(
+        { error: "Cette commande ne peut plus être prise en charge." },
+        { status: 409 },
+      );
+    }
+    const result = await prisma.order.updateMany({
+      where: { id, driverId: session.driverId, status: "CONFIRMEE" },
+      data: { status: "EN_LIVRAISON" },
+    });
+    if (result.count !== 1) {
+      return NextResponse.json({ error: "La commande a déjà été modifiée." }, { status: 409 });
+    }
+    return NextResponse.json({ ok: true });
+  }
+
+  if (order.status !== "EN_LIVRAISON") {
+    return NextResponse.json(
+      { error: "Seule une commande en livraison peut être terminée." },
+      { status: 409 },
+    );
+  }
   const data: {
-    status: "EN_LIVRAISON" | "LIVREE";
+    status: "LIVREE";
     signature?: string;
     receivedBy?: string;
     deliveredAt?: Date;
-  } = { status: parsed.data.status };
+  } = { status: "LIVREE" };
 
-  if (parsed.data.status === "LIVREE") {
-    if (!parsed.data.signature) {
-      return NextResponse.json(
-        { error: "Signature du client requise pour confirmer la livraison" },
-        { status: 400 },
-      );
-    }
-    data.signature = parsed.data.signature;
-    data.receivedBy = parsed.data.receivedBy || order.customerName;
-    data.deliveredAt = new Date();
+  if (!parsed.data.signature) {
+    return NextResponse.json(
+      { error: "Signature du client requise pour confirmer la livraison" },
+      { status: 400 },
+    );
   }
+  data.signature = parsed.data.signature;
+  data.receivedBy = parsed.data.receivedBy || order.customerName;
+  data.deliveredAt = new Date();
 
-  await prisma.order.update({ where: { id }, data });
+  const result = await prisma.order.updateMany({
+    where: { id, driverId: session.driverId, status: "EN_LIVRAISON" },
+    data,
+  });
+  if (result.count !== 1) {
+    return NextResponse.json({ error: "La commande a déjà été modifiée." }, { status: 409 });
+  }
 
   return NextResponse.json({ ok: true });
 }
