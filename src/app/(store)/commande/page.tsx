@@ -77,6 +77,10 @@ export default function CommandePage() {
       toast("Votre panier est vide", "error");
       return;
     }
+    if (typeof navigator !== "undefined" && navigator.onLine === false) {
+      toast("Vous êtes hors ligne. Vérifiez votre connexion et réessayez.", "error");
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch("/api/orders", {
@@ -97,7 +101,15 @@ export default function CommandePage() {
         `/commande/merci?ref=${encodeURIComponent(data.reference)}&total=${data.total}`,
       );
     } catch (err) {
-      toast(err instanceof Error ? err.message : "Une erreur est survenue", "error");
+      const offline = typeof navigator !== "undefined" && navigator.onLine === false;
+      toast(
+        offline
+          ? "Connexion perdue. Votre commande n'a pas été envoyée, réessayez."
+          : err instanceof Error
+            ? err.message
+            : "Une erreur est survenue",
+        "error",
+      );
       setLoading(false);
     }
   };

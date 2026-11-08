@@ -1,10 +1,19 @@
 /* ZAYA Service Worker — PWA offline + notifications push */
-const CACHE = "zaya-v1";
+const CACHE = "zaya-v2";
 const PRECACHE = ["/", "/logo-zaya.png", "/icons/icon-192.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE).then((c) => c.addAll(PRECACHE)).catch(() => {}),
+    caches.open(CACHE).then((c) =>
+      // Mise en cache individuelle : un asset manquant ne casse pas tout le cache.
+      Promise.all(
+        PRECACHE.map((url) =>
+          fetch(url)
+            .then((res) => (res.ok ? c.put(url, res) : null))
+            .catch(() => null),
+        ),
+      ),
+    ),
   );
   self.skipWaiting();
 });
