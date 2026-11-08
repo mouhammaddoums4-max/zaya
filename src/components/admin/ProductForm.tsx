@@ -8,7 +8,7 @@ import { toast } from "@/components/Toaster";
 import { formatNumber } from "@/lib/format";
 import { compressImageFile } from "@/lib/imageCompress";
 
-type Category = { id: string; name: string };
+type Category = { id: string; name: string; parentId: string | null };
 
 export type ProductFormData = {
   id?: string;
@@ -53,11 +53,33 @@ export default function ProductForm({
   initial?: ProductFormData;
 }) {
   const router = useRouter();
+
+  const parents = categories.filter((c) => !c.parentId);
+  const childrenOf = (pid: string) =>
+    categories.filter((c) => c.parentId === pid);
+
+  // Catégorie initiale (feuille) → déduit le parent à sélectionner
+  const catById = new Map(categories.map((c) => [c.id, c]));
+  const initialCat = initial ? catById.get(String(initial.categoryId)) : undefined;
+  const initialParentId = initialCat
+    ? initialCat.parentId ?? initialCat.id
+    : parents[0]?.id ?? categories[0]?.id ?? "";
+  const defaultLeaf =
+    childrenOf(initialParentId)[0]?.id ?? initialParentId ?? "";
+
   const [form, setForm] = useState<ProductFormData>(
-    initial ?? { ...empty, categoryId: categories[0]?.id ?? "" },
+    initial ?? { ...empty, categoryId: defaultLeaf },
   );
+  const [parentId, setParentId] = useState(initialParentId);
   const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const onParentChange = (pid: string) => {
+    setParentId(pid);
+    const kids = childrenOf(pid);
+    const leaf = kids[0]?.id ?? pid;
+    setForm((f) => ({ ...f, categoryId: leaf }));
+  };
   const [uploading, setUploading] = useState(false);
   const isEdit = Boolean(initial?.id);
 
@@ -190,19 +212,35 @@ export default function ProductForm({
                 />
               </div>
               <div>
-                <label className={label}>Catégorie *</label>
+                <label className={label}>Catégorie parente *</label>
                 <select
-                  value={form.categoryId}
-                  onChange={(e) => set("categoryId", e.target.value)}
+                  value={parentId}
+                  onChange={(e) => onParentChange(e.target.value)}
                   className={field}
                 >
-                  {categories.map((c) => (
+                  {parents.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
                     </option>
                   ))}
                 </select>
               </div>
+              {childrenOf(parentId).length > 0 && (
+                <div>
+                  <label className={label}>Sous-catégorie *</label>
+                  <select
+                    value={form.categoryId}
+                    onChange={(e) => set("categoryId", e.target.value)}
+                    className={field}
+                  >
+                    {childrenOf(parentId).map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
             <div>
               <label className={label}>Description</label>

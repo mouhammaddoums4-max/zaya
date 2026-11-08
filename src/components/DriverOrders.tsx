@@ -12,8 +12,11 @@ import {
   Check,
   Truck,
   Loader2,
+  PenLine,
+  X,
 } from "lucide-react";
 import { formatPrice } from "@/lib/format";
+import SignaturePad from "./SignaturePad";
 import { toast } from "./Toaster";
 
 type Order = {
@@ -39,22 +42,51 @@ export default function DriverOrders({
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
 
-  const setStatus = async (id: string, status: "EN_LIVRAISON" | "LIVREE") => {
+  // Signature de réception
+  const [signOrder, setSignOrder] = useState<Order | null>(null);
+  const [sigData, setSigData] = useState("");
+  const [receivedBy, setReceivedBy] = useState("");
+
+  const setStatus = async (
+    id: string,
+    status: "EN_LIVRAISON" | "LIVREE",
+    extra?: { signature?: string; receivedBy?: string },
+  ) => {
     setBusy(id);
     try {
       const res = await fetch(`/api/livreur/orders/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, ...extra }),
       });
-      if (!res.ok) throw new Error();
-      toast(status === "LIVREE" ? "Livraison terminée ✅" : "Course démarrée 🛵");
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Erreur");
+      toast(status === "LIVREE" ? "Livraison confirmée ✅" : "Course démarrée 🛵");
       router.refresh();
-    } catch {
-      toast("Erreur", "error");
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Erreur", "error");
     } finally {
       setBusy(null);
     }
+  };
+
+  const openSign = (o: Order) => {
+    setSignOrder(o);
+    setSigData("");
+    setReceivedBy(o.customerName);
+  };
+
+  const confirmDelivery = async () => {
+    if (!signOrder) return;
+    if (!sigData) {
+      toast("Faites signer le client avant de confirmer", "error");
+      return;
+    }
+    await setStatus(signOrder.id, "LIVREE", {
+      signature: sigData,
+      receivedBy: receivedBy.trim() || signOrder.customerName,
+    });
+    setSignOrder(null);
   };
 
   const logout = async () => {
@@ -136,8 +168,8 @@ export default function DriverOrders({
                         {busy === o.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Truck className="h-4 w-4" /> Prendre en charge</>}
                       </button>
                     )}
-                    <button onClick={() => setStatus(o.id, "LIVREE")} disabled={busy === o.id} className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-emerald-500 py-2 text-xs font-semibold text-white">
-                      {busy === o.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Check className="h-4 w-4" /> Marquer livré</>}
+                    <button onClick={() => openSign(o)} disabled={busy === o.id} className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-emerald-500 py-2 text-xs font-semibold text-white">
+                      {busy === o.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <><PenLine className="h-4 w-4" /> Livrer & faire signer</>}
                     </button>
                   </div>
                 )}
@@ -151,6 +183,70 @@ export default function DriverOrders({
           })}
         </div>
       </div>
+
+      {/* Modal signature de réception */}
+      {signOrder && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4">
+          <div className="w-full max-w-md rounded-t-3xl bg-white p-5 sm:rounded-3xl">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="flex items-center gap-2 font-display font-bold">
+                <PenLine className="h-5 w-5 text-zaya" /> Accusé de réception
+              </h2>
+              <button
+                onClick={() => setSignOrder(null)}
+                className="text-ink-muted hover:text-ink"
+                aria-label="Fermer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <p className="text-sm text-ink-muted">
+              Commande <b className="font-mono text-ink">{signOrder.reference}</b> —{" "}
+              {formatPrice(signOrder.total)}
+            </p>
+
+            <label className="mt-4 block text-xs font-medium text-ink-muted">
+              Nom du réceptionnaire
+            </label>
+            <input
+              value={receivedBy}
+              onChange={(e) => setReceivedBy(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm outline-none focus:border-zaya focus:ring-2 focus:ring-zaya/20"
+              placeholder="Nom du client"
+            />
+
+            <label className="mt-4 block text-xs font-medium text-ink-muted">
+              Signature du client
+            </label>
+            <div className="mt-1">
+              <SignaturePad onChange={setSigData} />
+            </div>
+
+            <div className="mt-4 flex gap-2">
+              <button
+                onClick={() => setSignOrder(null)}
+                className="flex-1 rounded-xl border border-black/10 py-2.5 text-sm font-semibold"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={confirmDelivery}
+                disabled={busy === signOrder.id || !sigData}
+                className="flex flex-1 items-center justify-center gap-1 rounded-xl bg-emerald-500 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+              >
+                {busy === signOrder.id ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <>
+                    <Check className="h-4 w-4" /> Confirmer la livraison
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

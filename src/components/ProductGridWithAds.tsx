@@ -49,7 +49,7 @@ export default function ProductGridWithAds({
   let adIndex = 0;
 
   products.forEach((p, i) => {
-    cells.push(<ProductCard key={p.id} product={p} index={i} />);
+    cells.push(<ProductCard key={p.id} product={p} index={i} products={products} />);
     const isSlot = (i + 1) % interval === 0;
     if (isSlot && ads.length > 0 && i < products.length - 1) {
       const ad = ads[adIndex % ads.length];

@@ -94,6 +94,7 @@ model Driver {
   id        String   @id @default(cuid())
   name      String
   phone     String   @unique
+  photo     String?
   pinHash   String
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
@@ -130,6 +131,9 @@ model Order {
   paidAt       DateTime?
   driverId     String?
   driver       Driver?     @relation(fields: [driverId], references: [id], onDelete: SetNull)
+  signature    String? // signature électronique du client (data URL)
+  receivedBy   String? // nom du réceptionnaire
+  deliveredAt  DateTime? // date de réception confirmée
   items        OrderItem[]
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt

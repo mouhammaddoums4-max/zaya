@@ -7,6 +7,8 @@ type Ctx = { params: Promise<{ id: string }> };
 
 const schema = z.object({
   status: z.enum(["EN_LIVRAISON", "LIVREE"]),
+  signature: z.string().max(2_000_000).optional(),
+  receivedBy: z.string().trim().max(120).optional(),
 });
 
 export async function PATCH(req: Request, { params }: Ctx) {
@@ -32,10 +34,26 @@ export async function PATCH(req: Request, { params }: Ctx) {
     return NextResponse.json({ error: "Commande introuvable" }, { status: 404 });
   }
 
-  await prisma.order.update({
-    where: { id },
-    data: { status: parsed.data.status },
-  });
+  const data: {
+    status: "EN_LIVRAISON" | "LIVREE";
+    signature?: string;
+    receivedBy?: string;
+    deliveredAt?: Date;
+  } = { status: parsed.data.status };
+
+  if (parsed.data.status === "LIVREE") {
+    if (!parsed.data.signature) {
+      return NextResponse.json(
+        { error: "Signature du client requise pour confirmer la livraison" },
+        { status: 400 },
+      );
+    }
+    data.signature = parsed.data.signature;
+    data.receivedBy = parsed.data.receivedBy || order.customerName;
+    data.deliveredAt = new Date();
+  }
+
+  await prisma.order.update({ where: { id }, data });
 
   return NextResponse.json({ ok: true });
 }

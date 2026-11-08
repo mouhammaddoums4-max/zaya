@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: "ZAYA",
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
   },
   icons: {
     apple: "/icons/icon-192.png",
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#F26B21",
+  themeColor: "#ffffff",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,

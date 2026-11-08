@@ -31,6 +31,11 @@ export async function PATCH(req: Request, { params }: Ctx) {
     return NextResponse.json({ error: "Données invalides" }, { status: 400 });
   }
 
+  const current = await prisma.order.findUnique({ where: { id } });
+  if (!current) {
+    return NextResponse.json({ error: "Commande introuvable" }, { status: 404 });
+  }
+
   const data: {
     status?: string;
     driverId?: string | null;
@@ -38,10 +43,23 @@ export async function PATCH(req: Request, { params }: Ctx) {
     paidAt?: Date | null;
   } = {};
   if (parsed.data.status) data.status = parsed.data.status;
+
   const assigning =
     parsed.data.driverId !== undefined && parsed.data.driverId !== null;
   if (parsed.data.driverId !== undefined)
     data.driverId = parsed.data.driverId || null;
+
+  // Règle métier : on ne peut assigner un livreur qu'après acceptation
+  if (assigning && current.status === "EN_ATTENTE") {
+    return NextResponse.json(
+      { error: "Acceptez d'abord la commande avant d'assigner un livreur." },
+      { status: 400 },
+    );
+  }
+  // Assigner un livreur passe automatiquement la commande en livraison
+  if (assigning && (current.status === "CONFIRMEE" || current.status === "EN_ATTENTE")) {
+    data.status = "EN_LIVRAISON";
+  }
 
   const markingPaid = parsed.data.paid === true;
   if (parsed.data.paid !== undefined) {
@@ -80,6 +98,22 @@ export async function PATCH(req: Request, { params }: Ctx) {
 
 export async function DELETE(_req: Request, { params }: Ctx) {
   const { id } = await params;
+
+  const order = await prisma.order.findUnique({ where: { id } });
+  if (!order) {
+    return NextResponse.json({ error: "Commande introuvable" }, { status: 404 });
+  }
+  // Garde-fou : une commande engagée ne peut pas être supprimée
+  if (["CONFIRMEE", "EN_LIVRAISON", "LIVREE"].includes(order.status)) {
+    return NextResponse.json(
+      {
+        error:
+          "Impossible de supprimer une commande confirmée, en livraison ou livrée. Annulez-la d'abord si nécessaire.",
+      },
+      { status: 400 },
+    );
+  }
+
   try {
     await prisma.order.delete({ where: { id } });
   } catch {

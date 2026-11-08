@@ -122,6 +122,7 @@ export const driverSchema = z.object({
     .string()
     .trim()
     .regex(/^[0-9]{4,6}$/, "Le code PIN doit contenir 4 à 6 chiffres"),
+  photo: z.string().max(2_000_000).nullish(),
 });
 
 export const orderStatusSchema = z.object({

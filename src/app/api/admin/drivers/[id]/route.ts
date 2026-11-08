@@ -12,6 +12,7 @@ const patchSchema = z.object({
     .trim()
     .regex(/^[0-9]{4,6}$/)
     .optional(),
+  photo: z.string().max(2_000_000).nullish(),
 });
 
 export async function PATCH(req: Request, { params }: Ctx) {
@@ -27,9 +28,10 @@ export async function PATCH(req: Request, { params }: Ctx) {
     return NextResponse.json({ error: "Données invalides" }, { status: 400 });
   }
 
-  const data: { active?: boolean; pinHash?: string } = {};
+  const data: { active?: boolean; pinHash?: string; photo?: string | null } = {};
   if (parsed.data.active !== undefined) data.active = parsed.data.active;
   if (parsed.data.pin) data.pinHash = hashPin(parsed.data.pin);
+  if (parsed.data.photo !== undefined) data.photo = parsed.data.photo ?? null;
 
   await prisma.driver.update({ where: { id }, data });
   return NextResponse.json({ ok: true });

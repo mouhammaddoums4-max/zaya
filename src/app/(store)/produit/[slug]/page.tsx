@@ -143,6 +143,8 @@ export default async function ProductPage({ params }: Props) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
+          // On échappe `<` pour empêcher une rupture de la balise <script>
+          // (ex. un nom/description contenant "</script>") = anti-XSS stocké.
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Product",
@@ -165,7 +167,7 @@ export default async function ProductPage({ params }: Props) {
               ratingValue: product.rating,
               reviewCount: Math.max(product.reviewsCount, 1),
             },
-          }),
+          }).replace(/</g, "\\u003c"),
         }}
       />
     </div>

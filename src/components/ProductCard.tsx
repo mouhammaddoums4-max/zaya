@@ -15,9 +15,11 @@ import { useEffect, useState } from "react";
 export default function ProductCard({
   product,
   index = 0,
+  products,
 }: {
   product: ProductCardData;
   index?: number;
+  products?: ProductCardData[];
 }) {
   const add = useCart((s) => s.add);
   const toggleWish = useWishlist((s) => s.toggle);
@@ -25,6 +27,13 @@ export default function ProductCard({
   const openQuickView = useQuickView((s) => s.open);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  const openQV = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (products && products.length) openQuickView(products, index);
+    else openQuickView([product], 0);
+  };
 
   const discount = discountPercent(product.price, product.compareAtPrice);
   const outOfStock = product.stock <= 0;
@@ -67,7 +76,7 @@ export default function ProductCard({
       transition={{ duration: 0.35, delay: Math.min(index * 0.03, 0.25) }}
       className="group flex flex-col overflow-hidden rounded-xl bg-white ring-1 ring-black/[0.06] transition-shadow hover:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.18)]"
     >
-      <Link href={`/produit/${product.slug}`} className="relative block">
+      <Link href={`/produit/${product.slug}`} onClick={openQV} className="relative block">
         <div className="relative aspect-square overflow-hidden bg-neutral-50">
           <SmartImage
             src={product.images[0]}
@@ -96,11 +105,7 @@ export default function ProductCard({
             <Heart className={`h-4 w-4 ${isWished ? "fill-red-500" : ""}`} />
           </button>
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              openQuickView(product);
-            }}
+            onClick={openQV}
             aria-label="Aperçu rapide"
             className="absolute right-2 top-11 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-ink-muted opacity-0 shadow-sm backdrop-blur transition hover:text-zaya group-hover:opacity-100"
           >
@@ -117,7 +122,7 @@ export default function ProductCard({
       </Link>
 
       <div className="flex flex-1 flex-col p-2.5 sm:p-3">
-        <Link href={`/produit/${product.slug}`}>
+        <Link href={`/produit/${product.slug}`} onClick={openQV}>
           <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-snug text-ink transition-colors group-hover:text-zaya">
             {product.name}
           </h3>

@@ -31,7 +31,7 @@ export async function POST(req: Request) {
   }
 
   const driver = await prisma.driver.create({
-    data: { name: d.name, phone, pinHash: hashPin(d.pin) },
+    data: { name: d.name, phone, pinHash: hashPin(d.pin), photo: d.photo ?? null },
     select: { id: true },
   });
 

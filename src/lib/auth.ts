@@ -2,8 +2,31 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { SESSION_COOKIE, DRIVER_COOKIE } from "./constants";
 
-const secretKey = process.env.AUTH_SECRET || "dev-insecure-secret-change-me";
-const encodedKey = new TextEncoder().encode(secretKey);
+function resolveSecret(): string {
+  const secret = process.env.AUTH_SECRET;
+  const isProd = process.env.NODE_ENV === "production";
+
+  // En production, un secret fort est OBLIGATOIRE : sans lui, n'importe qui
+  // pourrait forger un jeton de session admin/livreur.
+  if (isProd) {
+    if (!secret || secret.length < 32) {
+      throw new Error(
+        "AUTH_SECRET manquant ou trop court (>= 32 caractères requis en production).",
+      );
+    }
+    return secret;
+  }
+
+  if (!secret) {
+    console.warn(
+      "[auth] AUTH_SECRET non défini — utilisation d'un secret de développement NON sécurisé.",
+    );
+    return "dev-insecure-secret-change-me";
+  }
+  return secret;
+}
+
+const encodedKey = new TextEncoder().encode(resolveSecret());
 
 export type SessionPayload = { role: "admin"; iat?: number; exp?: number };
 
