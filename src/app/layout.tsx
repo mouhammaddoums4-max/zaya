@@ -47,7 +47,13 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
   },
   icons: {
-    apple: "/icons/icon-192.png",
+    // ?v=2 force les navigateurs à recharger le favicon (cache très agressif)
+    icon: [
+      { url: "/icon.png?v=2", type: "image/png", sizes: "512x512" },
+      { url: "/icons/icon-192.png?v=2", type: "image/png", sizes: "192x192" },
+    ],
+    shortcut: "/icon.png?v=2",
+    apple: "/icons/icon-192.png?v=2",
   },
   openGraph: {
     type: "website",

@@ -7,6 +7,7 @@ import PromoBanners from "@/components/PromoBanners";
 import FlashDeals from "@/components/FlashDeals";
 import ProductGridWithAds from "@/components/ProductGridWithAds";
 import RecentlyViewed from "@/components/RecentlyViewed";
+import ScrollReveal from "@/components/ScrollReveal";
 import {
   getCategories,
   getFlashDeals,
@@ -59,13 +60,23 @@ export default async function HomePage() {
       <HomeHero categories={categories} slides={settings.slides} />
 
       <div className="container-zaya space-y-8 py-6 sm:space-y-10 sm:py-8">
-        <TrustBadges />
+        <ScrollReveal>
+          <TrustBadges />
+        </ScrollReveal>
 
-        <CategoriesShowcase categories={categories} />
+        <ScrollReveal>
+          <CategoriesShowcase categories={categories} />
+        </ScrollReveal>
 
-        <PromoBanners banners={settings.banners} />
+        <ScrollReveal>
+          <PromoBanners banners={settings.banners} />
+        </ScrollReveal>
 
-        {flash.length > 0 && <FlashDeals products={flash} />}
+        {flash.length > 0 && (
+          <ScrollReveal>
+            <FlashDeals products={flash} />
+          </ScrollReveal>
+        )}
 
         {best.length > 0 && (
           <section>

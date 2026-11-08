@@ -1,10 +1,13 @@
-import { getCategories, getSettings } from "@/lib/data";
+import { getCategories, getCategoryTree, getSettings } from "@/lib/data";
 import HeaderClient from "./HeaderClient";
 
 export default async function Header() {
-  const [categories, settings] = await Promise.all([
+  const [categories, tree, settings] = await Promise.all([
     getCategories(),
+    getCategoryTree(),
     getSettings(),
   ]);
-  return <HeaderClient categories={categories} logo={settings.logo} />;
+  return (
+    <HeaderClient categories={categories} tree={tree} logo={settings.logo} />
+  );
 }

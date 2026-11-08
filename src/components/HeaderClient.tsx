@@ -43,11 +43,21 @@ function formatPhone(w: string) {
   return `+${w.slice(0, 3)} ${w.slice(3, 6)} ${w.slice(6, 9)} ${w.slice(9)}`;
 }
 
+type CatNode = {
+  id: string;
+  name: string;
+  slug: string;
+  icon: string | null;
+  children: { id: string; name: string; slug: string }[];
+};
+
 export default function HeaderClient({
   categories,
+  tree = [],
   logo,
 }: {
   categories: CategoryData[];
+  tree?: CatNode[];
   logo?: string | null;
 }) {
   const logoSrc = logo || "/logo-zaya.png";
@@ -286,20 +296,34 @@ export default function HeaderClient({
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 8 }}
-                    className="absolute left-0 top-full z-50 w-72 overflow-hidden rounded-xl bg-white py-2 shadow-xl ring-1 ring-black/5"
+                    className="absolute left-0 top-full z-50 max-h-[76vh] w-80 overflow-y-auto rounded-xl bg-white py-2 shadow-xl ring-1 ring-black/5"
                   >
-                    {categories.map((cat) => (
-                      <Link
-                        key={cat.id}
-                        href={`/categorie/${cat.slug}`}
-                        className="flex items-center justify-between px-4 py-2.5 text-sm text-ink transition hover:bg-zaya-50 hover:text-zaya"
-                      >
-                        <span className="flex items-center gap-3">
-                          <CategoryIcon name={cat.icon} className="h-5 w-5 text-zaya" />
-                          {cat.name}
-                        </span>
-                        <ChevronRight className="h-4 w-4 text-ink-muted" />
-                      </Link>
+                    {tree.map((cat) => (
+                      <div key={cat.id} className="border-b border-black/5 last:border-0">
+                        <Link
+                          href={`/categorie/${cat.slug}`}
+                          className="flex items-center justify-between px-4 py-2.5 text-sm font-semibold text-ink transition hover:bg-zaya-50 hover:text-zaya"
+                        >
+                          <span className="flex items-center gap-3">
+                            <CategoryIcon name={cat.icon} className="h-5 w-5 text-zaya" />
+                            {cat.name}
+                          </span>
+                          <ChevronRight className="h-4 w-4 text-ink-muted" />
+                        </Link>
+                        {cat.children.length > 0 && (
+                          <div className="pb-1.5">
+                            {cat.children.map((sc) => (
+                              <Link
+                                key={sc.id}
+                                href={`/categorie/${sc.slug}`}
+                                className="block py-1.5 pl-12 pr-4 text-sm text-ink-muted transition hover:bg-zaya-50 hover:text-zaya"
+                              >
+                                {sc.name}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </motion.div>
                 )}
@@ -374,16 +398,27 @@ export default function HeaderClient({
                 </div>
                 <p className="px-4 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide text-ink-muted">Catégories</p>
                 <div className="p-2">
-                  {categories.map((cat) => (
-                    <Link key={cat.id} href={`/categorie/${cat.slug}`} className="flex items-center justify-between rounded-lg px-3 py-3 text-sm font-medium text-ink hover:bg-zaya-50">
-                      <span className="flex items-center gap-3">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-zaya-50 text-zaya">
-                          <CategoryIcon name={cat.icon} className="h-5 w-5" />
+                  {tree.map((cat) => (
+                    <div key={cat.id} className="mb-1">
+                      <Link href={`/categorie/${cat.slug}`} className="flex items-center justify-between rounded-lg px-3 py-3 text-sm font-semibold text-ink hover:bg-zaya-50">
+                        <span className="flex items-center gap-3">
+                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-zaya-50 text-zaya">
+                            <CategoryIcon name={cat.icon} className="h-5 w-5" />
+                          </span>
+                          {cat.name}
                         </span>
-                        {cat.name}
-                      </span>
-                      <ChevronRight className="h-4 w-4 text-ink-muted" />
-                    </Link>
+                        <ChevronRight className="h-4 w-4 text-ink-muted" />
+                      </Link>
+                      {cat.children.length > 0 && (
+                        <div className="ml-11 border-l border-black/10 pl-2">
+                          {cat.children.map((sc) => (
+                            <Link key={sc.id} href={`/categorie/${sc.slug}`} className="block rounded-lg px-3 py-2 text-sm text-ink-muted hover:bg-zaya-50 hover:text-zaya">
+                              {sc.name}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
               </div>
