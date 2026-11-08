@@ -81,12 +81,13 @@ export default function ContentManager({
         <div className="mb-1 flex items-center justify-between">
           <h2 className="font-display font-bold">Carrousel d'accueil</h2>
           <button
+            disabled={slides.length >= 10}
             onClick={() =>
               setSlides([...slides, { image: "", title: "", subtitle: "", cta: "", link: "" }])
             }
-            className="flex items-center gap-1 rounded-lg bg-zaya px-3 py-1.5 text-sm font-semibold text-white"
+            className="flex items-center gap-1 rounded-lg bg-zaya px-3 py-1.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <Plus className="h-4 w-4" /> Ajouter
+            <Plus className="h-4 w-4" /> {slides.length >= 10 ? "Maximum atteint" : "Ajouter"}
           </button>
         </div>
         <p className="mb-4 text-xs text-ink-muted">
