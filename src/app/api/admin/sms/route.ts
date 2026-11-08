@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { getCrmClients, type Segment } from "@/lib/crm";
-import { sendSms, normalizePhoneGN } from "@/lib/sms";
+import {
+  getNimbaMissingVariables,
+  normalizePhoneGN,
+  sendSms,
+} from "@/lib/sms";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,6 +36,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Segment invalide" }, { status: 400 });
   }
 
+  const missingVariables = getNimbaMissingVariables();
+  if (missingVariables.length > 0) {
+    return NextResponse.json(
+      {
+        error: `Nimba SMS n'est pas configuré sur ce serveur. Variables manquantes : ${missingVariables.join(", ")}. Vérifiez l'environnement de déploiement puis redéployez.`,
+        configured: false,
+        missingVariables,
+      },
+      { status: 503 },
+    );
+  }
+
   const clients = await getCrmClients();
   const targets =
     segment === "TOUS"
@@ -54,18 +70,26 @@ export async function POST(req: Request) {
     );
   }
 
-  // Envoi par lots de 50 (best-effort, ne bloque jamais)
+  let sent = 0;
   for (let i = 0; i < phones.length; i += 50) {
-    await sendSms(phones.slice(i, i + 50), message);
+    const result = await sendSms(phones.slice(i, i + 50), message);
+    if (!result.sent) {
+      return NextResponse.json(
+        {
+          error: result.error || "Échec de l'envoi SMS",
+          configured: result.configured,
+          sent,
+        },
+        { status: 502 },
+      );
+    }
+    sent += Math.min(50, phones.length - i);
   }
-
-  const configured = Boolean(
-    process.env.NIMBA_SERVICE_ID && process.env.NIMBA_SECRET_TOKEN,
-  );
 
   return NextResponse.json({
     ok: true,
+    configured: true,
     recipients: phones.length,
-    configured,
+    sent,
   });
 }
