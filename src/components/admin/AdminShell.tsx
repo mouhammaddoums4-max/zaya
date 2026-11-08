@@ -47,7 +47,6 @@ const NAV_GROUPS: {
     label: "Clients",
     items: [
       { href: "/admin/clients", label: "CRM", icon: Users },
-      { href: "/admin/visiteurs", label: "Visiteurs", icon: BarChart3 },
       { href: "/admin/livreurs", label: "Livreurs", icon: Bike },
     ],
   },
@@ -55,12 +54,6 @@ const NAV_GROUPS: {
     label: "Marketing",
     items: [
       { href: "/admin/codes", label: "Codes promo", icon: Ticket },
-    ],
-  },
-  {
-    label: "Configuration",
-    items: [
-      { href: "/admin/apparence", label: "Apparence", icon: Palette },
     ],
   },
 ];
@@ -202,6 +195,14 @@ export default function AdminShell({
               </h1>
             </div>
             <div className="flex shrink-0 items-center gap-1">
+              <Link
+                href="/admin/visiteurs"
+                aria-label="Visiteurs"
+                title="Visiteurs"
+                className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+              >
+                <BarChart3 className="h-[18px] w-[18px]" />
+              </Link>
               <a
                 href="/"
                 target="_blank"

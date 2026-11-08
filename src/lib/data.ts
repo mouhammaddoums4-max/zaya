@@ -58,25 +58,33 @@ function toCard(p: RawProduct): ProductCardData {
 
 /** Catégories de navigation : uniquement les catégories parentes (sans parent). */
 export async function getCategories(): Promise<CategoryData[]> {
-  const cats = await prisma.category.findMany({
-    where: { parentId: null },
-    orderBy: { order: "asc" },
-    select: { id: true, name: true, slug: true, icon: true, image: true, parentId: true },
-  });
-  return cats;
+  try {
+    return await prisma.category.findMany({
+      where: { parentId: null },
+      orderBy: { order: "asc" },
+      select: { id: true, name: true, slug: true, icon: true, image: true, parentId: true },
+    });
+  } catch {
+    // base indisponible (ex. build sans DATABASE_URL) → liste vide
+    return [];
+  }
 }
 
 /** Catégories parentes (sans parent) avec leurs sous-catégories. */
 export async function getCategoryTree() {
-  const all = await prisma.category.findMany({
-    orderBy: { order: "asc" },
-    select: { id: true, name: true, slug: true, icon: true, image: true, parentId: true },
-  });
-  const parents = all.filter((c) => !c.parentId);
-  return parents.map((p) => ({
-    ...p,
-    children: all.filter((c) => c.parentId === p.id),
-  }));
+  try {
+    const all = await prisma.category.findMany({
+      orderBy: { order: "asc" },
+      select: { id: true, name: true, slug: true, icon: true, image: true, parentId: true },
+    });
+    const parents = all.filter((c) => !c.parentId);
+    return parents.map((p) => ({
+      ...p,
+      children: all.filter((c) => c.parentId === p.id),
+    }));
+  } catch {
+    return [];
+  }
 }
 
 /** Sous-catégories d'une catégorie donnée. */

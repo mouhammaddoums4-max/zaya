@@ -9,6 +9,10 @@ import QuickViewModal from "@/components/QuickViewModal";
 import PushOptIn from "@/components/PushOptIn";
 import { getSettings } from "@/lib/data";
 
+// Rendu dynamique : en-tête/pied (catégories, logo, settings) lus au runtime.
+// Évite tout accès à la base pendant le build Docker (DATABASE_URL absent).
+export const dynamic = "force-dynamic";
+
 export default async function StoreLayout({
   children,
 }: {
