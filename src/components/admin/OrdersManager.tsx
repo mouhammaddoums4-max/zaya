@@ -35,6 +35,9 @@ type Order = {
   createdAt: string;
   driverId: string | null;
   paid: boolean;
+  signature: string | null;
+  receivedBy: string | null;
+  deliveredAt: string | null;
   receiptUrl: string;
   items: Item[];
 };
@@ -210,6 +213,25 @@ export default function OrdersManager({
                     <span className="text-zaya">{formatPrice(o.total)}</span>
                   </div>
                 </div>
+
+                {/* Preuve de livraison (signature client) */}
+                {o.signature && (
+                  <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50/60 p-3">
+                    <p className="mb-2 text-xs font-semibold text-emerald-700">
+                      ✓ Réception confirmée
+                      {o.receivedBy ? ` par ${o.receivedBy}` : ""}
+                      {o.deliveredAt
+                        ? ` — ${new Date(o.deliveredAt).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" })}`
+                        : ""}
+                    </p>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={o.signature}
+                      alt="Signature du client"
+                      className="h-24 w-auto rounded-lg border border-black/5 bg-white"
+                    />
+                  </div>
+                )}
 
                 {/* Actions */}
                 <div className="flex flex-wrap items-center gap-2">

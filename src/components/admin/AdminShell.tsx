@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+import NotificationBell from "./NotificationBell";
 import {
   LayoutDashboard,
   Package,
@@ -115,6 +116,7 @@ export default function AdminShell({
             ADMIN
           </span>
         </Link>
+        <NotificationBell />
       </header>
 
       {/* Contenu — espace réservé en bas pour le dock */}

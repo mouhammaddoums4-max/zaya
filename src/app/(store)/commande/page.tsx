@@ -230,6 +230,7 @@ export default function CommandePage() {
                     <Check className="h-4 w-4" /> {promo.code} ({promo.label})
                   </span>
                   <button
+                    type="button"
                     onClick={removePromo}
                     className="text-emerald-700/70 hover:text-emerald-900"
                     aria-label="Retirer le code"
@@ -254,6 +255,7 @@ export default function CommandePage() {
                       />
                     </div>
                     <button
+                      type="button"
                       onClick={applyPromo}
                       disabled={promoLoading || !promoInput.trim()}
                       className="rounded-xl bg-ink px-4 text-sm font-semibold text-white transition hover:bg-ink-soft disabled:opacity-50"

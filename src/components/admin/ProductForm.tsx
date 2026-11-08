@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Plus, Trash2, ImageIcon, Upload } from "lucide-react";
+import { Loader2, Plus, Trash2, ImageIcon, Upload, Save } from "lucide-react";
 import SmartImage from "@/components/SmartImage";
 import { toast } from "@/components/Toaster";
 import { formatNumber } from "@/lib/format";
@@ -187,6 +187,19 @@ export default function ProductForm({
 
   return (
     <form onSubmit={submit} className="grid gap-6 lg:grid-cols-3">
+      {/* Enregistrer (icône, en haut) */}
+      <div className="sticky top-16 z-10 -mb-2 flex justify-end lg:col-span-3">
+        <button
+          type="submit"
+          disabled={loading}
+          aria-label="Enregistrer"
+          title={isEdit ? "Enregistrer les modifications" : "Créer le produit"}
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-zaya text-white shadow-glow transition hover:bg-zaya-600 disabled:opacity-60"
+        >
+          {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
+        </button>
+      </div>
+
       <div className="space-y-5 lg:col-span-2">
         {/* Infos générales */}
         <div className="rounded-2xl bg-white p-5 shadow-card ring-1 ring-black/5">

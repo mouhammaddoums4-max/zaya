@@ -33,6 +33,9 @@ export default async function AdminOrdersPage() {
     createdAt: o.createdAt.toISOString(),
     driverId: o.driverId,
     paid: o.paid,
+    signature: o.signature,
+    receivedBy: o.receivedBy,
+    deliveredAt: o.deliveredAt ? o.deliveredAt.toISOString() : null,
     receiptUrl: receiptUrl(o.reference),
     items: o.items.map((i) => ({
       id: i.id,
