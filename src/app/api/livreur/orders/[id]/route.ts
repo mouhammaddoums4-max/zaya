@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { getDriverSession } from "@/lib/auth";
 import { sendDeliveryNotification } from "@/lib/email";
 import { sendSms } from "@/lib/sms";
+import { receiptUrl } from "@/lib/receipt";
+import { formatPrice } from "@/lib/format";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -67,6 +69,8 @@ export async function PATCH(req: Request, { params }: Ctx) {
     signature?: string;
     receivedBy?: string;
     deliveredAt?: Date;
+    paid?: boolean;
+    paidAt?: Date;
   } = { status: "LIVREE" };
 
   if (!parsed.data.signature) {
@@ -78,6 +82,11 @@ export async function PATCH(req: Request, { params }: Ctx) {
   data.signature = parsed.data.signature;
   data.receivedBy = parsed.data.receivedBy || order.customerName;
   data.deliveredAt = new Date();
+  // Paiement à la livraison : la livraison confirmée = commande payée
+  if (!order.paid) {
+    data.paid = true;
+    data.paidAt = new Date();
+  }
 
   const result = await prisma.order.updateMany({
     where: { id, driverId: session.driverId, status: "EN_LIVRAISON" },
@@ -89,6 +98,11 @@ export async function PATCH(req: Request, { params }: Ctx) {
 
   const adminSms = process.env.ADMIN_SMS_NUMBER || "224628358080";
   await Promise.allSettled([
+    // Reçu de paiement envoyé au CLIENT (lien du reçu, pas de lien livreur)
+    sendSms(
+      order.phone,
+      `ZAYA: Merci ${order.customerName} ! Votre commande ${order.reference} (${formatPrice(order.total)}) est livree et payee. Votre recu: ${receiptUrl(order.reference)}`,
+    ),
     sendSms(
       adminSms,
       `ZAYA - Livraison effectuée: commande ${order.reference}, client ${order.customerName}, lieu ${order.location}, réceptionnée par ${data.receivedBy}.`,
