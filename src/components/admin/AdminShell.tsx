@@ -16,6 +16,7 @@ import {
   Bike,
   Palette,
   BarChart3,
+  Megaphone,
   LogOut,
   ExternalLink,
 } from "lucide-react";
@@ -31,6 +32,7 @@ const NAV = [
   { href: "/admin/visiteurs", label: "Visiteurs", icon: BarChart3 },
   { href: "/admin/livreurs", label: "Livreurs", icon: Bike },
   { href: "/admin/codes", label: "Codes promo", icon: Ticket },
+  { href: "/admin/notifications", label: "Push", icon: Megaphone },
   { href: "/admin/apparence", label: "Apparence", icon: Palette },
   { href: "/admin/parametres", label: "Paramètres", icon: Settings },
 ];

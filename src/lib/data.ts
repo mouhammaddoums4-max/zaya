@@ -227,7 +227,14 @@ export async function searchProducts(
     ];
   }
   if (query.category) {
-    where.category = { slug: query.category };
+    // Catégorie feuille : ses produits. Catégorie parente : produits de toutes
+    // ses sous-catégories (+ éventuels produits directs).
+    where.category = {
+      OR: [
+        { slug: query.category },
+        { parent: { slug: query.category } },
+      ],
+    };
   }
   if (query.min != null || query.max != null) {
     where.price = {};

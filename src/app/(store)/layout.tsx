@@ -6,6 +6,7 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 import CookieConsent from "@/components/CookieConsent";
 import PopupAd from "@/components/PopupAd";
 import QuickViewModal from "@/components/QuickViewModal";
+import PushOptIn from "@/components/PushOptIn";
 import { getSettings } from "@/lib/data";
 
 export default async function StoreLayout({
@@ -26,6 +27,7 @@ export default async function StoreLayout({
       <QuickViewModal />
       <MobileBottomNav />
       <CookieConsent />
+      <PushOptIn />
       <PopupAd
         enabled={settings.popupEnabled}
         image={settings.popupImage}
