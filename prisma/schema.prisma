@@ -14,6 +14,16 @@ model MediaImage {
   createdAt DateTime @default(now())
 }
 
+model Visit {
+  id    String @id @default(cuid())
+  path  String
+  day   String // YYYY-MM-DD
+  count Int    @default(1)
+
+  @@unique([day, path])
+  @@index([day])
+}
+
 model Setting {
   id           String   @id @default("main")
   logo         String?

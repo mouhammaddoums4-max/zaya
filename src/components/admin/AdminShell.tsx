@@ -15,6 +15,7 @@ import {
   Users,
   Bike,
   Palette,
+  BarChart3,
   LogOut,
   ExternalLink,
 } from "lucide-react";
@@ -27,6 +28,7 @@ const NAV = [
   { href: "/admin/categories", label: "Catégories", icon: FolderTree },
   { href: "/admin/commandes", label: "Commandes", icon: ShoppingCart },
   { href: "/admin/clients", label: "CRM", icon: Users },
+  { href: "/admin/visiteurs", label: "Visiteurs", icon: BarChart3 },
   { href: "/admin/livreurs", label: "Livreurs", icon: Bike },
   { href: "/admin/codes", label: "Codes promo", icon: Ticket },
   { href: "/admin/apparence", label: "Apparence", icon: Palette },

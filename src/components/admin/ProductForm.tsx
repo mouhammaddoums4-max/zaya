@@ -238,9 +238,9 @@ export default function ProductForm({
                   ))}
                 </select>
               </div>
-              {childrenOf(parentId).length > 0 && (
-                <div>
-                  <label className={label}>Sous-catégorie *</label>
+              <div>
+                <label className={label}>Sous-catégorie</label>
+                {childrenOf(parentId).length > 0 ? (
                   <select
                     value={form.categoryId}
                     onChange={(e) => set("categoryId", e.target.value)}
@@ -252,8 +252,19 @@ export default function ProductForm({
                       </option>
                     ))}
                   </select>
-                </div>
-              )}
+                ) : (
+                  <>
+                    <select disabled className={`${field} opacity-60`}>
+                      <option>— Catégorie principale —</option>
+                    </select>
+                    <p className="mt-1 text-xs text-ink-muted">
+                      Aucune sous-catégorie pour ce parent. Créez-en dans{" "}
+                      <b>Catégories</b> (en choisissant un parent) pour qu&apos;elles
+                      apparaissent ici.
+                    </p>
+                  </>
+                )}
+              </div>
             </div>
             <div>
               <label className={label}>Description</label>

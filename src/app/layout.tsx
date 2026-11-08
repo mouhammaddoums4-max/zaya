@@ -4,6 +4,7 @@ import "./globals.css";
 import { SITE } from "@/lib/constants";
 import { Toaster } from "@/components/Toaster";
 import PwaProvider from "@/components/PwaProvider";
+import VisitTracker from "@/components/VisitTracker";
 
 // Fonts self-hosted (next/font/local) to avoid build-time fetches to
 // Google Fonts, which fail intermittently on Vercel.
@@ -82,6 +83,7 @@ export default function RootLayout({
         {children}
         <Toaster />
         <PwaProvider />
+        <VisitTracker />
       </body>
     </html>
   );
