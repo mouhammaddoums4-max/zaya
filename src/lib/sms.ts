@@ -120,7 +120,7 @@ export async function sendSms(
 
   try {
     const response = await fetch(
-      `${config.baseUrl.replace(/\/$/, "")}/v1/messages/`,
+      `${config.baseUrl.replace(/\/$/, "")}/v1/messages`,
       {
         method: "POST",
         headers: {
