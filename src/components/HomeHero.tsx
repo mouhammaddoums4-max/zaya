@@ -56,6 +56,20 @@ const DEFAULT_SLIDES: Slide[] = [
     link: "/boutique",
     image: "/hero/hero-5.png",
   },
+  {
+    title: "Tout pour\nvotre maison",
+    subtitle: "Découvrez les essentiels pour équiper votre intérieur.",
+    cta: "Voir les produits",
+    link: "/boutique",
+    image: "/hero/hero-5.png",
+  },
+  {
+    title: "Les nouveautés\nvous attendent",
+    subtitle: "Explorez les dernières trouvailles de la boutique ZAYA.",
+    cta: "Découvrir",
+    link: "/boutique",
+    image: "/hero/hero-1.png",
+  },
 ];
 
 export default function HomeHero({ slides }: { slides?: Slide[] }) {
