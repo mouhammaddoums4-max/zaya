@@ -296,10 +296,6 @@ export default function CrmManager({ clients }: { clients: CrmClient[] }) {
                 </button>
               </div>
             </div>
-            <p className="mt-3 text-xs text-ink-muted">
-              Envoi via Nimba SMS. Nécessite les variables NIMBA_SERVICE_ID /
-              NIMBA_SECRET_TOKEN côté serveur.
-            </p>
           </section>
         </div>
       )}

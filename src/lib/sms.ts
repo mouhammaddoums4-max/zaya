@@ -62,6 +62,36 @@ export type SmsSendResult = {
   error?: string;
 };
 
+async function getNimbaError(response: Response): Promise<string> {
+  if (response.status === 401) {
+    return "Nimba refuse l'authentification. Vérifiez NIMBA_SERVICE_ID et NIMBA_SECRET_TOKEN pour la même organisation.";
+  }
+  if (response.status === 403) {
+    return "Le compte Nimba n'est pas autorisé à envoyer des SMS.";
+  }
+  if (response.status === 429) {
+    return "La limite d'envoi Nimba est atteinte. Réessayez plus tard.";
+  }
+
+  try {
+    const body: unknown = await response.json();
+    if (body && typeof body === "object") {
+      const details = Array.isArray(body)
+        ? body
+        : Object.values(body as Record<string, unknown>);
+      const message = details.find(
+        (value): value is string =>
+          typeof value === "string" && value.trim().length > 0,
+      );
+      if (message) return `Nimba : ${message.slice(0, 240)}`;
+    }
+  } catch {
+    // Keep a useful status message when Nimba returns a non-JSON response.
+  }
+
+  return `Nimba a refusé l'envoi (HTTP ${response.status}). Vérifiez le nom d'expéditeur et le solde du compte.`;
+}
+
 /**
  * Envoie un SMS via Nimba SMS (https://nimbasms.com).
  * Retourne le résultat sans exposer les identifiants ni la réponse du fournisseur.
@@ -108,7 +138,7 @@ export async function sendSms(
       return {
         configured: true,
         sent: false,
-        error: `Nimba a refusé l'envoi (HTTP ${response.status})`,
+        error: await getNimbaError(response),
       };
     }
     return { configured: true, sent: true };

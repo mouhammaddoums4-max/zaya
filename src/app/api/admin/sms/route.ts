@@ -71,8 +71,8 @@ export async function POST(req: Request) {
   }
 
   let sent = 0;
-  for (let i = 0; i < phones.length; i += 50) {
-    const result = await sendSms(phones.slice(i, i + 50), message);
+  for (let i = 0; i < phones.length; i += 30) {
+    const result = await sendSms(phones.slice(i, i + 30), message);
     if (!result.sent) {
       return NextResponse.json(
         {
@@ -83,7 +83,7 @@ export async function POST(req: Request) {
         { status: 502 },
       );
     }
-    sent += Math.min(50, phones.length - i);
+    sent += Math.min(30, phones.length - i);
   }
 
   return NextResponse.json({
